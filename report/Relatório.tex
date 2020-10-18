@@ -1,0 +1,68 @@
+\documentclass[12pt,a4paper,brazil,abntex2]{article}
+\usepackage{lmodern}			% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage[brazil]{babel}
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage{microtype} 			% para melhorias de justificação
+\usepackage[left=3cm,right=2cm,top=3cm,bottom=2cm]{geometry}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}
+\usepackage{cite}
+
+\begin{document}
+\singlespacing
+\begin{titlepage}
+\begin{center}
+\begin{figure}[!htb]
+\center
+
+\includegraphics[scale=0.25]{~/Curso/Brasao/Sigla.pdf} 
+
+\end{figure}
+{\bf  UNIVERSIDADE FEDERAL DE SANTA CATARINA}\\[0.2cm] %0,2cm é a distância entre o texto dessa linha e o texto da próxima
+{\bf CENTRO TECNOLÓGICO}\\[0.2cm] % o comando \\ "manda" o texto ir para próxima linha
+{\bf  DEPARTAMENTO DE INFORMÁTICA E ESTATÍSTICA}\\[5.5cm]
+{\bf \large IMPLEMENTAÇÃO DE COMPILADOR}\\[3.8cm] % o comando \bf deixa o texto entre chaves em negrito. O comando \huge deixa o texto enorme
+{Marcos Silva Laydner}\\
+{Nathan Sargon Werlich}\\
+{Higor Nocetti}\\
+{Sadi Júnior Domingos Jacinto}\\[0.7cm] % o comando \large deixa o texto grande
+{Professor orientador: Rafael de Santiago}\\[4cm]
+{Florianópolis}\\[0.2cm]
+{2020}
+\newpage
+\thispagestyle{empty}
+{Marcos Silva Laydner}\\
+{Nathan Sargon Werlich}\\
+{Higor Nocetti}\\
+{Sadi Júnior Domingos Jacinto}\\[9cm] % o comando \large deixa o texto grande
+{\bf \large IMPLEMENTAÇÃO DE COMPILADOR}\\[0.5cm]
+    \begin{flushright}
+    \begin{list}{}{
+      \setlength{\leftmargin}{7.2cm}
+      \setlength{\rightmargin}{0cm}
+      \setlength{\labelwidth}{0pt}
+      \setlength{\labelsep}{\leftmargin}}
+      \item Trabalho prático da disciplina INE5622 – Introdução a Compiladores, consistindo na implementação de um compilador (analisador léxico e sintático), com o uso da ferramenta ANTLR4, necessário para obtenção de nota.\\[0.2 cm] 
+      \setlength{\labelsep}{\leftmargin}
+      \item Professor orientador: Rafael de Santiago\
+      \\[8.2cm]
+     \end{list}
+	 \end{flushright}
+{Florianópolis}\\[0.2cm]
+{2020}
+\end{center}
+\end{titlepage} %término da "capa"
+\newpage
+\thispagestyle{empty}
+\begin{center}
+\tableofcontents
+\end{center}
+
+\include{parte_01}
+\include{parte_02}
+\include{parte_03}
+\end{document}
