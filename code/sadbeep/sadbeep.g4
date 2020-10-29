@@ -29,6 +29,8 @@ expr : variable '=' expr ';'
      | call
      | exp
      | operators
+     | if_smtm
+     | smtm
      ;
      
 operators: '+' | '-' | '/' | '*';
@@ -47,12 +49,17 @@ number : NUMBER;
 variable : ID;
 STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
 
-
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 
 summ: left=mult (op=('+'|'-') right=summ)*;
 
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
+
+expf : exp
+        | summ
+        | mult
+        | expr
+        ;
 
 atom
    : '(' exp ')'
@@ -64,6 +71,9 @@ atom
    | ID
    | 'input'
    ;
+
+if_smtm: 'if' expf '{' stmt* '}'
+    ;
 
 COMMENT
     : '/*' .*? '*/' -> skip
