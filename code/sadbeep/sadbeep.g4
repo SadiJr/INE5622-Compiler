@@ -2,7 +2,7 @@ grammar sadbeep;
 
 OPEN_PAREN : '(';
 CLOSE_PAREN : ')';
-fragment ID_START : [A-Za-z+\-*/_];
+fragment ID_START : [a-zA-Z]+;
 fragment ID_BODY : ID_START | NUMBER;
 ID : ID_START ID_BODY*;
 NUMBER : INT | UINT | FLOAT;
@@ -22,13 +22,16 @@ expr : variable '=' expr ';'
      | number                       
      | function_def                 
      | expr expr                    
-     | OPEN_PAREN expr CLOSE_PAREN ';'  
+     | OPEN_PAREN expr CLOSE_PAREN  
      | STRING
      | 'return' expr ';'
      | ID
      | call
      | exp
-;
+     | operators
+     ;
+     
+operators: '+' | '-' | '/' | '*';
 
 function_def : 'func' name=ID '(' args? ')' block;
 
@@ -47,7 +50,7 @@ STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
 
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 
-summ: left=mult (op=('+' | '-') right=summ)*;
+summ: left=mult (op=('+'|'-') right=summ)*;
 
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
