@@ -6,9 +6,9 @@ fragment ID_START : [a-zA-Z]+;
 fragment ID_BODY : ID_START | NUMBER;
 ID : ID_START ID_BODY*;
 NUMBER : INT | UINT | FLOAT;
-INT: '-'?[0-9]+;
+INT: [0-9]+;
 UINT: [0-9]+;
-FLOAT: '-'?[0-9]+'.'[0-9]+;
+FLOAT: [0-9]+'.'[0-9]+;
 TRUE: 'true';
 FALSE: 'false';
 BOOL: TRUE | FALSE;
@@ -27,13 +27,11 @@ expr : variable '=' expr ';'
      | 'return' expr ';'
      | ID
      | call
+     |  expr operators ';'
      | exp
-     | operators
-     | if_smtm
-     | smtm
      ;
      
-operators: '+' | '-' | '/' | '*';
+operators: mult | summ;
 
 function_def : 'func' name=ID '(' args? ')' block;
 
@@ -49,31 +47,21 @@ number : NUMBER;
 variable : ID;
 STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
 
+
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 
 summ: left=mult (op=('+'|'-') right=summ)*;
 
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
-expf : exp
-        | summ
-        | mult
-        | expr
-        ;
-
 atom
    : '(' exp ')'
-   | INT
-   | UINT
+   | number
    | BOOL
-   | FLOAT
    | STRING
    | ID
    | 'input'
    ;
-
-if_smtm: 'if' expf '{' stmt* '}'
-    ;
 
 COMMENT
     : '/*' .*? '*/' -> skip
