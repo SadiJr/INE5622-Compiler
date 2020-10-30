@@ -29,8 +29,7 @@ expr : variable '=' expr ';'
      | call
      | exp
      | operators
-     | if_smtm
-     | smtm
+     | if_stmt
      ;
      
 operators: '+' | '-' | '/' | '*';
@@ -55,12 +54,6 @@ summ: left=mult (op=('+'|'-') right=summ)*;
 
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
-expf : exp
-        | summ
-        | mult
-        | expr
-        ;
-
 atom
    : '(' exp ')'
    | INT
@@ -72,7 +65,7 @@ atom
    | 'input'
    ;
 
-if_smtm: 'if' expf '{' stmt* '}'
+if_stmt: 'if' expr '{' expr '}'
     ;
 
 COMMENT
