@@ -15,8 +15,14 @@ BOOL: TRUE | FALSE;
 WS: [ \n\t\r]+ -> skip;
 DOT: '.';
 COMMA: ',';
+ELSE : 'else';
 
 parse : expr* EOF;
+
+statm : ID '=' expr ';'                                         # assign
+      | 'if' cond=expr then=block ('else' otherwise=block)?     # if
+      | 'while' cond=expr block                                 # while
+      ;
 
 expr : variable '=' expr ';'        
      | number                       
@@ -29,7 +35,6 @@ expr : variable '=' expr ';'
      | call
      | exp
      | operators
-     | if_stmt
      ;
      
 operators: '+' | '-' | '/' | '*';
@@ -38,7 +43,9 @@ function_def : 'func' name=ID '(' args? ')' block;
 
 args : ID (',' ID)*;
 
-block: '{' expr* '}';
+block : '{' expr* '}'
+      | expr
+      ;
 
 call : name=ID '(' exprs? ')' ';';
 
@@ -65,8 +72,6 @@ atom
    | 'input'
    ;
 
-if_stmt: 'if' expr '{' expr '}'
-    ;
 
 COMMENT
     : '/*' .*? '*/' -> skip
