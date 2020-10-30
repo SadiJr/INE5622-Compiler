@@ -3,3 +3,7 @@
 *.gz
 *.out
 *.toc
+*.class
+*.java
+*.tokens
+*.interp
