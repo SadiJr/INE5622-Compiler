@@ -11,11 +11,11 @@ expr : variable '=' expr ';'
      | 'return' expr ';'
      | ID
      | call
+     | expr operators ';'
      | exp
-     | operators
      ;
 
-operators: '+' | '-' | '*' | '/' | '%';
+operators: mult | summ;
 
 number: NUMBER;
 
@@ -39,10 +39,8 @@ mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
    : '(' exp ')'
-   | INT
-   | UINT
+   | number
    | BOOL
-   | FLOAT
    | STRING
    | ID
    | 'input'
