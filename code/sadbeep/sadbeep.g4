@@ -13,6 +13,8 @@ expr : variable '=' expr ';'
      | call
      | expr operators ';'
      | exp
+     | 'if' cond=expr then=block ('else' otherwise=block)?
+     | 'while' cond=expr block                              
      ;
 
 operators: mult | summ;
