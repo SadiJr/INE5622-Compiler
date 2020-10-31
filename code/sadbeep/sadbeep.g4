@@ -15,7 +15,7 @@ expr : ID '=' expr ';'
      | operators
      ;
      
-operators: '+' | '-' | '/' | '*';
+operators: '+' | '-' | '*' | '/' | '%';
 
 function_def : 'func' name=ID '(' args? ')' block;
 
