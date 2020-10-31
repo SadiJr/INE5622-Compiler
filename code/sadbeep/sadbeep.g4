@@ -13,8 +13,8 @@ expr : variable '=' expr ';'
      | call
      | expr operators ';'
      | exp
-     | 'if' cond=expr then=block ('else' otherwise=block)?
-     | 'while' cond=expr block                              
+     | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
+     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block                              
      ;
 
 operators: mult | summ;
@@ -28,6 +28,8 @@ function_def : 'func' name=ID '(' args? ')' block;
 args : ID (',' ID)*;
 
 block: '{' expr* '}';
+
+andor: ('&&' cond=expr)* | ('||' cond=expr)*;
 
 call : name=ID '(' exprs? ')' ';';
 
@@ -63,9 +65,9 @@ CLOSE_PAREN : ')';
 
 // Números
 NUMBER : INT | UINT | FLOAT;
-INT: '-'?[0-9]+;
+INT: [0-9]+;
 UINT: [0-9]+;
-FLOAT: '-'?[0-9]+'.'[0-9]+;
+FLOAT: [0-9]+'.'[0-9]+;
 
 // Booleano
 TRUE: 'true';
@@ -74,7 +76,6 @@ BOOL: TRUE | FALSE;
 
 // String
 STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
-
 // Quebra de linha e outros sinais
 WS: [ \n\t\r]+ -> skip;
 DOT: '.';
