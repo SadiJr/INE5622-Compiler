@@ -2,8 +2,8 @@ grammar sadbeep;
 
 parse : expr* EOF;
 
-expr : ID '=' expr ';'        
-     | NUMBER                       
+expr : variable '=' expr ';'        
+     | number                       
      | function_def                 
      | expr expr                    
      | OPEN_PAREN expr CLOSE_PAREN  
@@ -14,8 +14,12 @@ expr : ID '=' expr ';'
      | exp
      | operators
      ;
-     
+
 operators: '+' | '-' | '*' | '/' | '%';
+
+number: NUMBER;
+
+variable: ID;
 
 function_def : 'func' name=ID '(' args? ')' block;
 
