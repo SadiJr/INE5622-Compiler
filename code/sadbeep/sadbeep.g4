@@ -1,71 +1,94 @@
 grammar sadbeep;
 
-OPEN_PAREN : '(';
-CLOSE_PAREN : ')';
-fragment ID_START : [a-zA-Z]+;
-fragment ID_BODY : ID_START | NUMBER;
-ID : ID_START ID_BODY*;
-NUMBER : INT | UINT | FLOAT;
-INT: '-'?[0-9]+;
-UINT: [0-9]+;
-FLOAT: '-'?[0-9]+'.'[0-9]+;
-TRUE: 'true';
-FALSE: 'false';
-BOOL: TRUE | FALSE;
-WS: [ \n\t\r]+ -> skip;
-DOT: '.';
-COMMA: ',';
-
 parse : expr* EOF;
 
-expr : variable '=' expr ';'        
+expr : variable '=' expr ';'
      | number                       
      | function_def                 
-     | expr expr                    
+     | expr expr
+     | OPEN_PAREN expr ';'
+     | expr CLOSE_PAREN                    
      | OPEN_PAREN expr CLOSE_PAREN  
      | STRING
      | 'return' expr ';'
      | ID
      | call
+     | case_m
+     | expr operators ';'
      | exp
-     | operators
+     | op_rel
      | 'if' cond=expr then=block ('else' otherwise=block)?
-     | 'while' cond=expr block                              
+     | 'while' cond=expr block
+     | 'for' expr* ';' block
+     | 'break'';'      
+     | 'switch' expr block (case_m expr)*
      ;
-     
-operators: '+' | '-' | '/' | '*';
+
+operators: mult | summ;
+
+number: NUMBER;
+
+variable: ID;
+
+condSwitch: expr;
 
 function_def : 'func' name=ID '(' args? ')' block;
 
 args : ID (',' ID)*;
 
-block: '{' expr* '}'
-    | expr
-    ;
+case_m: 'case' condSwitch ':';
+
+block: '{' expr* '}';
 
 call : name=ID '(' exprs? ')' ';';
 
 exprs : expr (',' expr)*;
 
-number : NUMBER; 
-variable : ID;
-STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
+
 summ: left=mult (op=('+'|'-') right=summ)*;
+
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
+
+op_rel: '&&' | '||';
+
 atom
    : '(' exp ')'
-   | INT
-   | UINT
+   | number
    | BOOL
-   | FLOAT
    | STRING
    | ID
    | 'input'
    ;
-COMMENT
-    : '/*' .*? '*/' -> skip
-;
-LINE_COMMENT
-    : '//' ~[\r\n]* -> skip
-;
+
+fragment ID_START : [a-zA-Z]+;
+fragment ID_BODY : ID_START | NUMBER;
+
+ID : ID_START ID_BODY*;
+
+// Comentário
+COMMENT: '/*' .*? '*/' -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+
+// Parentêses
+OPEN_PAREN : '(';
+CLOSE_PAREN : ')';
+
+// Números
+NUMBER : INT | UINT | FLOAT;
+INT: '-'?[0-9]+;
+UINT: [0-9]+;
+FLOAT: '-'?[0-9]+'.'[0-9]+;
+
+// Booleano
+TRUE: 'true';
+FALSE: 'false';
+BOOL: TRUE | FALSE;
+
+// String
+STRING: '\''~[\r\n']*'\'' | '"'~[\r\n']*'"';
+
+// Quebra de linha e outros sinais
+WS: [ \n\t\r]+ -> skip;
+DOT: '.';
+COMMA: ',';
