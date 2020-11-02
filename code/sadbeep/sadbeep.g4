@@ -29,8 +29,6 @@ args : ID (',' ID)*;
 
 block: '{' expr* '}';
 
-andor: ('&&' cond=expr)* | ('||' cond=expr)*;
-
 call : name=ID '(' exprs? ')' ';';
 
 exprs : expr (',' expr)*;
