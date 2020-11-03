@@ -2,7 +2,7 @@ grammar sadbeep;
 
 parse : expr* EOF;
 
-expr : variable '=' expr ';'        
+expr : variable '=' expr ';'       
      | number                       
      | function_def                 
      | expr expr                    
@@ -14,7 +14,9 @@ expr : variable '=' expr ';'
      | expr operators ';'
      | exp
      | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
-     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block                              
+     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block 
+     | 'for' forexpr block
+     | 'switch' expr? '{' (cases)+ '}'                         
      ;
 
 operators: mult | summ;
@@ -27,11 +29,15 @@ function_def : 'func' name=ID '(' args? ')' block;
 
 args : ID (',' ID)*;
 
+cases: 'case' expr ':' expr 'break'? ';';
+
 block: '{' expr* '}';
 
 call : name=ID '(' exprs? ')' ';';
 
 exprs : expr (',' expr)*;
+
+forexpr : '(' variable '=' expr ';' cond=expr ';' variable '=' expr ')';
 
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 
