@@ -46,7 +46,7 @@ summ: left=mult (op=('+'|'-') right=summ)*;
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
-   : '(' exp ')'
+   : '(' '-'?exp ')'
    | number
    | BOOL
    | STRING
