@@ -6,7 +6,7 @@ expr : variable '=' expr ';'
      | number                       
      | function_def                 
      | expr expr                    
-     | OPEN_PAREN expr CLOSE_PAREN  
+     | '(' expr ')'  
      | STRING
      | 'return' expr ';'
      | ID
@@ -63,14 +63,9 @@ ID : ID_START ID_BODY*;
 COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
-// Parentêses
-OPEN_PAREN : '(';
-CLOSE_PAREN : ')';
-
 // Números
-NUMBER : INT | UINT | FLOAT;
+NUMBER : INT | FLOAT;
 INT: [0-9]+;
-UINT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 
 // Booleano
