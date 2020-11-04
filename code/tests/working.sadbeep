@@ -34,6 +34,8 @@ switch jaspion{
     case 2:
         if (a == b) && (b == c){
             a = c;
+        }else{
+            a = -c;
         }
     case 3:
         l = true;
