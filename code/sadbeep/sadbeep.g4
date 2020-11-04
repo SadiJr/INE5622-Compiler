@@ -29,7 +29,7 @@ function_def : 'func' name=ID '(' args? ')' block;
 
 args : ID (',' ID)*;
 
-cases: 'case' expr ':' expr 'break'? ';';
+cases: 'case' expr ':' expr 'break;'?;
 
 block: '{' expr* '}';
 
