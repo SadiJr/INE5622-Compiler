@@ -12,7 +12,7 @@ expr : variable '=' expr ';'
      | ID
      | call
      | expr operators ';'
-     | ('+' | '-')? exp
+     | '-'? exp
      | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
      | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block 
      | 'for' forexpr block
