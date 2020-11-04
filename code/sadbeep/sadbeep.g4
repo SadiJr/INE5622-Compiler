@@ -47,7 +47,7 @@ mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
    : '(' '-'?exp ')'
-   | number
+   | '-'?number
    | BOOL
    | STRING
    | ID
