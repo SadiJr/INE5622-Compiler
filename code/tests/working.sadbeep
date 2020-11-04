@@ -1,29 +1,44 @@
 a = 1;
-b = 7;
 
 func hellowordl() {
     print("Hello Wordl!");
     
     a = 2;
     
+    for(y = 0; y < 42; y = y + 1){
+        string = "teste de string";
+        int = 1;
+        float = 0.123;
+    }
+
     test(a);
-    
-    //testando a caralha do comentário, sem acento porque essa porra nao reconhece a
-    //porcaria da acentuacao
-    
-    /* Tentando a caralha do comentário, agora com comentários acentuados
-    nesse filho da puta. Puta que pariu, que dificuldade para conseguir
-    fazer essa merda aceitar acentuação, vai tomar no cu.
-    */
 
     c = ((1 + 2) - 3) * 9 / 4;
 }
 
 func test(param) {
-    param2 = "cu";
-    
-    print(param + param2);
-    return 10;
+    if (a > 3){
+        b = 3*(1+2);
+    }
+}
+
+while (jiraya < 100){
+    p = 1+1*8;
+    q = (1+1)*8;
+    mod = 10%2;
+}
+
+switch jaspion{
+    case 1: 
+        t = u;
+    case 2:
+        if (a == b) && (b == c){
+            a = c;
+        }
+    case 3:
+        l = true;
+        j = false;
+        break;
 }
 
 hellowordl();
