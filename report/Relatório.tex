@@ -12,6 +12,43 @@
 \usepackage{setspace}
 \usepackage{cite}
 
+%Pacotes usados na tabela inicial
+\usepackage{array}
+\usepackage{calc}
+
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	breaklines=true,
+  	frame=trbl,
+	stringstyle=\color{black},
+	identifierstyle=\color{black},
+	keywordstyle=\color{red},
+  	texcl=true,
+  	numbers=left,
+  	extendedchars=true,
+  	escapeinside={(:}{:)},
+  	literate=%
+  		{Ç}{{\c{C}}}1
+    		{á}{{\'a}}1
+		{à}{{\`a}}1
+		{ã}{{\~a}}1
+		{é}{{\'e}}1
+		{ê}{{\^e}}1
+		{í}{{\'i}}1
+		{ó}{{\'o}}1
+		{õ}{{\~o}}1
+		{ú}{{\'u}}1
+		{ü}{{\"u}}1
+		{ç}{{\c{c}}}1
+		{É}{{\'E}}1
+		{Í}{{\'I}}1
+		{â}{{\^a}}1
+}
+
 \begin{document}
 \singlespacing
 \begin{titlepage}
