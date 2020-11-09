@@ -1,12 +1,16 @@
 a = 1;
 
+/*Um comentário
+Outro comentário
+Mais um comentário*/
+
 func hellowordl() {
     print("Hello Wordl!");
     
-    a = 2;
+    a = -2;
     
-    for(y = 0; y < 42; y = y + 1){
-        string = "teste de string";
+    for(y = 0; y < 42; y = y + 1){                  //Último comentário
+        string = "teste de string";                 
         int = 1;
         float = 0.123;
     }
@@ -22,15 +26,15 @@ func test(param) {
     }
 }
 
-while (jiraya < 100){
+while (testeWhile < 100){
     p = -1+1*8;
     q = (1+1)*(-8);
     mod = 10%2;
 }
 
-switch jaspion{
+switch testeSwitch{
     case 1: 
-        t = u;
+        t = 0.123 + 1.234;
     case 2:
         if (a == b) && (b == c){
             a = c;
