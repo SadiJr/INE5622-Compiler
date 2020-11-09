@@ -26,25 +26,7 @@ NUMBER: INT | FLOAT;
 INT: [0-9]+;
 FLOAT: [0-9]+.[0-9]+;
                     \end{lstlisting}
-
-                \item \textbf{BOOL:}\\
-                    Um dos tipos adicionais da linguagem, definido devido a utilidade do tipo \textit{booleano} em operações lógicas e condicionais utilizadas por laços como \textit{for} e \textit{while}, e por estruturas condicionais como o \textit{if-then-else}.
-
-                    \begin{lstlisting}[language=python]
-TRUE: (:\textquotesingle true\textquotesingle:);
-FALSE: (:\textquotesingle false\textquotesingle:);
-BOOL: TRUE | FALSE;
-                    \end{lstlisting}
-
-                \item \textbf{STRING:}\\
-                    O segundo tipo adicional da linguagem, a definição de \textit{string} usada nesse trabalho comporta tanto caractéres isolados quanto textos longos. Além disso, existem dois caractéres usados para se delimitar e definir uma \textit{string}, a saber: \textquotesingle \vspace{0.1cm} e \textquotedbl.
-
-                    \begin{lstlisting}
-STRING: (:\textquotesingle:)\(:\textquotesingle\textquotesingle:)~[\r\n(:\textquotesingle:)]* (:\textquotesingle:)\(:\textquotesingle\textquotesingle:) | (:\textquotesingle:)"(:\textquotesingle:)~[\r\n(:\textquotesingle:)]*(:\textquotesingle:)"(:\textquotesingle:);
-                    \end{lstlisting}
-            \end{itemize}
-
-
+                    
         \subsubsection{\normalsize OPERADORES}
             Os operadores implementados foram baseados no código de exemplo disponibilizado no \textit{moodle}, sendo divididos em três categorias:
             \begin{enumerate}
@@ -174,5 +156,22 @@ while c < 1 || d == 1 {
 while (c < 1) || (d == 1) {
 ...
 }
-					\end{lstlisting}	
+					\end{lstlisting}
+					
+				\item \textbf{BOOL:}\\
+                    Um dos tipos adicionais da linguagem, definido devido a utilidade do tipo \textit{booleano} em operações lógicas e condicionais utilizadas por laços como \textit{for} e \textit{while}, e por estruturas condicionais como o \textit{if-then-else}.
+
+                    \begin{lstlisting}[language=python]
+TRUE: (:\textquotesingle true\textquotesingle:);
+FALSE: (:\textquotesingle false\textquotesingle:);
+BOOL: TRUE | FALSE;
+                    \end{lstlisting}
+
+                \item \textbf{STRING:}\\
+                    O segundo tipo adicional da linguagem, a definição de \textit{string} usada nesse trabalho comporta tanto caractéres isolados quanto textos longos. Além disso, existem dois caractéres usados para se delimitar e definir uma \textit{string}, a saber: \textquotesingle \vspace{0.1cm} e \textquotedbl.
+
+                    \begin{lstlisting}
+STRING: (:\textquotesingle:)\(:\textquotesingle\textquotesingle:)~[\r\n(:\textquotesingle:)]* (:\textquotesingle:)\(:\textquotesingle\textquotesingle:) | (:\textquotesingle:)"(:\textquotesingle:)~[\r\n(:\textquotesingle:)]*(:\textquotesingle:)"(:\textquotesingle:);
+                    \end{lstlisting}
+            \end{itemize}
 			\end{itemize}			            
