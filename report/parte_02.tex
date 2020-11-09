@@ -96,15 +96,83 @@ call : name=ID (:\textquotesingle:)((:\textquotesingle:) exprs? (:\textquotesing
 	           \end{lstlisting}
 
 			\end{itemize}
+			
+		\subsubsection{\normalsize \textit{IF-THEN-ELSE} e \textit{SWITCH CASE}}
+        
+        		\begin{itemize}
+        			\item \textbf{\textit{IF-THEN-ELSE}:}\\
+        				Foi seguido a estrutura clássica do \textit{if-then-else}, baseando-se na sintaxe do \textit{Java}. Inicia-se com o \textit{if}, seguido de uma condicional, que pode estar ou não contida entre parênteses, depois se encontra a abertura do par de chaves, dentro do qual se encontra o bloco que será executado caso a condicional seja verdadeira.
+        				
+        				Em seguida existe a possibilidade de se usar o else seguido por mais um bloco entre chaves, conforme o exemplo na seção \ref{sec3}.
+        			
+					\begin{lstlisting}
+(:\textquotesingle:)if(:\textquotesingle:) cond=expr ((:\textquotesingle:)&&(:\textquotesingle:) cond=expr)* | ((:\textquotesingle:)||(:\textquotesingle:) cond=expr)* then-block ((:\textquotesingle:)else(:\textquotesingle:) otherwise=block)?;
+
+block: (:\textquotesingle:){(:\textquotesingle:) expr* (:\textquotesingle:)}(:\textquotesingle:);
+        				\end{lstlisting}
+        			
+        			\item \textbf{\textit{SWITCH}:}\\
+        				Foi baseado na sintaxe do \textit{Java}, porém, sem a inclusão do bloco \textit{default} e sem a necessidade da palavra reservada \textit{break}.
+        				\begin{lstlisting}
+(:\textquotesingle:)switch(:\textquotesingle:) expr? (:\textquotesingle:){(:\textquotesingle:) (cases)+ (:\textquotesingle:)}(:\textquotesingle:)
+
+cases: (:\textquotesingle:)case(:\textquotesingle:) expr (:\textquotesingle:):(:\textquotesingle:) expr (:\textquotesingle:)break;(:\textquotesingle:)?;
+        				\end{lstlisting}
+        		\end{itemize}
         
         \subsubsection{\normalsize \textit{FOR} e \textit{WHILE}}
+        		\begin{itemize}
+        			\item \textbf{\textit{FOR}:}\\
+        				Foi seguida a sintaxe padrão do Java, com capacidades de atribuição, seguida da condição de parada e posterior incremento.
+        				
+        				\begin{lstlisting}
+(:\textquotesingle:)for(:\textquotesingle:) forexpr block;
 
-        \subsubsection{\normalsize \textit{IF-THEN-ELSE} e \textit{SWITCH CASE}}
+forexpr: (:\textquotesingle:)((:\textquotesingle:) variable (:\textquotesingle:)=(:\textquotesingle:) expr (:\textquotesingle:);(:\textquotesingle:) cond=expr (:\textquotesingle:);(:\textquotesingle:) variable (:\textquotesingle:)=(:\textquotesingle:) expr (:\textquotesingle:))(:\textquotesingle:);
+        				\end{lstlisting}
+        				
+        			\item \textbf{\textit{WHILE}:}\\
+        				Usada a sintaxe padrão do Java, onde existe apenas a condição de parada do laço:
+        				\begin{lstlisting}
+(:\textquotesingle:)while(:\textquotesingle:) cond=expr ((:\textquotesingle:)&&(:\textquotesingle:) cond=expr)* | ((:\textquotesingle:)||(:\textquotesingle:) cond=expr)* block;
+        				\end{lstlisting}
+        		\end{itemize}
 
 	\subsection{\normalsize CARACTERÍSTICAS ADICIONAIS DA LINGUAGEM}
-            Fora os tipos adicionais, comentados na seção de tipos, a presente linguagem apresenta, como característica adicional, o suporte à comentários, sejam eles de linha única ou de múltiplas linhas, seguindo a sintaxe de comentários da linguagem \textit{Java}.
+            Fora os tipos adicionais, comentados na seção de tipos, a presente linguagem apresenta, como características adicionais:
+			
+			\begin{itemize}
+				\item Suporte à Comentários:\\
+					Sejam eles de linha única ou de múltiplas linhas, seguindo a sintaxe de comentários da linguagem \textit{Java}.
+					\begin{lstlisting}
+//Comentário de linha única
+/*Comentário longo
+com mais de uma linha
+*/
+					\end{lstlisting}
 
             \begin{lstlisting}
 COMMENT: (:\textquotesingle:)/*(:\textquotesingle:) .*? (:\textquotesingle:)*/(:\textquotesingle:) -> skip;
 LINE_COMMENT: (:\textquotesingle:)//(:\textquotesingle:) ~[\r\n]* -> skip;]
             \end{lstlisting}
+            
+            		\item \&\& e $||$ Lógicos:\\
+            			Foi adicionado também a capacidade de adicionar Es (\&\&) e OUs ($||$) nas condicionais das estruturas \textit{if-then-else} e \textit{while}. Sendo que o uso desses operadores pode ocorrer com o uso de duas sintaxes:
+            			\begin{lstlisting}
+if a > 3 && b == 0 {
+...
+}
+
+if (a > 3) && (b == 0) {
+...
+}
+
+while c < 1 || d == 1 {
+...
+}
+
+while (c < 1) || (d == 1) {
+...
+}
+					\end{lstlisting}	
+			\end{itemize}			            
