@@ -30,14 +30,9 @@ switch testeSwitch{
     case 1
         t = 0.123 + 1.234;
     case 2;
-        if (a == b) && (b == c){
-            a = c;
-        }else{
-            a = -c;
-        }
-    case 3:
-        l = true;
-        j = false;
+        whale (a == b) && (b == c){
+            a = a5c;
+        };
 }
 
 hellowordl[];
