@@ -1,5 +1,3 @@
-a = 1;
-
 /Um comentário
 Outro comentário
 Mais um comentário*/
@@ -9,7 +7,7 @@ func hellowordl() {
 
     a = --2;
 
-    for(y < 42; y = y + 1){ //Último comentário
+    for(y < 42; y = y + 1){
         string = teste de string";
         int = 1;
         float = 0,123;
