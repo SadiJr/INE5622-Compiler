@@ -1,1 +1,177 @@
 \section{\normalsize DESCRIÇÃO DA LINGUAGEM}
+
+	A linguagem criada chama-se \textbf{sadbeep}. A mesma consiste em uma linguagem que não se utiliza de tipagem, além de apresentar a possibilidade de definições de variáveis, e um código inteiro propriamente dito, fora de funções. Além disso, a criação de variáveis não é obrigatória, visto que um código como o do exemplo abaixo é válido:
+
+    \begin{lstlisting}
+1 + 1;
+"Teste de string não atribuída a nenhuma variável.";
+true;
+    \end{lstlisting}
+
+    \subsection{\normalsize REQUISITOS OBRIGATÓRIOS DA LINGUAGEM}
+        
+        \subsubsection{\normalsize TIPOS}
+            
+            \begin{itemize}
+                \item \textbf{INT:}\\
+                    Para o tipo inteiro, foi considerado qualquer quantidade, maior ou igual à 1, de dígitos de 0 à 9, inicialmente sem limite de quantidade de dígitos.
+
+                \item \textbf{FLOAT:}\\
+                    Para o tipo de ponto flutuante, foram considerados dois grupos de dígitos, de qualquer quantidade, maior ou igual à 1 estando no intervalo de 0 à 9, concatenados por um ponto. Assim como o tipo inteiro, a princípio, não foi definido nenhuma limitação da quantidade máxima de dígitos.
+
+                    Visando facilitar a leitura da gramática, esses dois tipos (INT e FLOAT) foram representados por um mesmo \textit{token}, chamado \textbf{NUMBER}.
+
+                    \begin{lstlisting}
+NUMBER: INT | FLOAT;
+INT: [0-9]+;
+FLOAT: [0-9]+.[0-9]+;
+                    \end{lstlisting}
+              \item \textbf{BOOL:}\\
+                    Um dos tipos adicionais da linguagem, definido devido a utilidade do tipo \textit{booleano} em operações lógicas e condicionais utilizadas por laços como \textit{for} e \textit{while}, e por estruturas condicionais como o \textit{if-then-else}.
+
+                    \begin{lstlisting}[language=python]
+TRUE: (:\textquotesingle true\textquotesingle:);
+FALSE: (:\textquotesingle false\textquotesingle:);
+BOOL: TRUE | FALSE;
+                    \end{lstlisting}
+              
+                    
+        \subsubsection{\normalsize OPERADORES}
+            Os operadores implementados foram baseados no código de exemplo disponibilizado no \textit{moodle}, sendo divididos em três categorias:
+            \begin{enumerate}
+                \item \textbf{exp:} Operações lógicas.
+                    \begin{lstlisting}
+exp: left=summ (op=((:\textquotesingle:)>(:\textquotesingle:) | (:\textquotesingle:)<(:\textquotesingle:) | (:\textquotesingle:)>=(:\textquotesingle:) | (:\textquotesingle:)<=(:\textquotesingle:) | (:\textquotesingle:)==(:\textquotesingle:) | (:\textquotesingle:)!=(:\textquotesingle:)) right=exp)*;
+                    \end{lstlisting}
+
+                \item \textbf{mult:} Operações de multiplicação, divisão e módulo.
+                    \begin{lstlisting}
+mult: left=atom (op=((:\textquotesingle:)*(:\textquotesingle:) | (:\textquotesingle:)/(:\textquotesingle:) | (:\textquotesingle:)\%(:\textquotesingle:)) right=mult)*;
+                    \end{lstlisting}
+
+                \item \textbf{summ:} Operações de adição e subtração.
+                    \begin{lstlisting}
+summ: left=mult (op=((:\textquotesingle:)+(:\textquotesingle:) | (:\textquotesingle:)-(:\textquotesingle:)) right=summ)*;
+                    \end{lstlisting}
+            \end{enumerate}
+
+            Importante observar que a ordem de precedência dos operadores é definida pelo atributo ``\textit{left}'', indicando quais operadores tem precedência sobre quais outros. Assim, tem-se \textit{mult} com a maior precedência, seguida de \textit{summ}\footnote{graças ao uso de \textit{left=mult}}, e tendo \textit{exp} como o de menor precedência\footnote{\textit{left=summ}}.
+
+        \subsubsection{\normalsize FUNÇÕES}
+            A definição de uma função se dá com o prefixo \textit{func} seguido do nome da função, uma lista de argumentos dentro de dois parênteses, sendo possível tal lista estar vazia, e um conjunto de colchetes, dentro dos quais se encontra, obrigatóriamente, o corpo da função. A sintaxe simplicada é:
+
+            \textbf{func nome(args) \{
+                body;
+            \}}
+
+            E sua gramática é:
+            \begin{itemize}
+            \item[ ]
+            \begin{lstlisting}
+function_def : (:\textquotesingle:)func(:\textquotesingle:) name=ID (:\textquotesingle:)((:\textquotesingle:) args? (:\textquotesingle:))(:\textquotesingle:) block;
+args : ID ((:\textquotesingle:),(:\textquotesingle:) ID)*;
+block: (:\textquotesingle:){(:\textquotesingle:) expr* (:\textquotesingle:)}(:\textquotesingle:);            
+            \end{lstlisting}
+            \end{itemize}
+
+            Sendo que a chamada de um função pode ocorrer dentro ou fora de uma função, além de permitir o uso de recursão. Para chamar uma função, basta invocar o nome da mesma, passando para ela uma lista de parâmetros, que podem ser variáveis, valores ou outras funções, A sintaxe é:
+
+            \textbf{call\_func(args);}
+
+            E a gramática:
+			\begin{itemize}
+				\item[ ]
+				
+    			   \begin{lstlisting}
+call : name=ID (:\textquotesingle:)((:\textquotesingle:) exprs? (:\textquotesingle:))(:\textquotesingle:) (:\textquotesingle:);(:\textquotesingle:);            
+	           \end{lstlisting}
+
+			\end{itemize}
+			
+		\subsubsection{\normalsize \textit{IF-THEN-ELSE} e \textit{SWITCH CASE}}
+        
+        		\begin{itemize}
+        			\item \textbf{\textit{IF-THEN-ELSE}:}\\
+        				Foi seguido a estrutura clássica do \textit{if-then-else}, baseando-se na sintaxe do \textit{Java}. Inicia-se com o \textit{if}, seguido de uma condicional, que pode estar ou não contida entre parênteses, depois se encontra a abertura do par de chaves, dentro do qual se encontra o bloco que será executado caso a condicional seja verdadeira.
+        				
+        				Em seguida existe a possibilidade de se usar o else seguido por mais um bloco entre chaves, conforme o exemplo na seção \ref{sec3}.
+        			
+					\begin{lstlisting}
+(:\textquotesingle:)if(:\textquotesingle:) cond=expr ((:\textquotesingle:)&&(:\textquotesingle:) cond=expr)* | ((:\textquotesingle:)||(:\textquotesingle:) cond=expr)* then-block ((:\textquotesingle:)else(:\textquotesingle:) otherwise=block)?;
+
+block: (:\textquotesingle:){(:\textquotesingle:) expr* (:\textquotesingle:)}(:\textquotesingle:);
+        				\end{lstlisting}
+        			
+        			\item \textbf{\textit{SWITCH}:}\\
+        				Foi baseado na sintaxe do \textit{Java}, porém, sem a inclusão do bloco \textit{default} e sem a necessidade da palavra reservada \textit{break}.
+        				\begin{lstlisting}
+(:\textquotesingle:)switch(:\textquotesingle:) expr? (:\textquotesingle:){(:\textquotesingle:) (cases)+ (:\textquotesingle:)}(:\textquotesingle:)
+
+cases: (:\textquotesingle:)case(:\textquotesingle:) expr (:\textquotesingle:):(:\textquotesingle:) expr (:\textquotesingle:)break;(:\textquotesingle:)?;
+        				\end{lstlisting}
+        		\end{itemize}
+        
+        \subsubsection{\normalsize \textit{FOR} e \textit{WHILE}}
+        		\begin{itemize}
+        			\item \textbf{\textit{FOR}:}\\
+        				Foi seguida a sintaxe padrão do Java, com capacidades de atribuição, seguida da condição de parada e posterior incremento.
+        				
+        				\begin{lstlisting}
+(:\textquotesingle:)for(:\textquotesingle:) forexpr block;
+
+forexpr: (:\textquotesingle:)((:\textquotesingle:) variable (:\textquotesingle:)=(:\textquotesingle:) expr (:\textquotesingle:);(:\textquotesingle:) cond=expr (:\textquotesingle:);(:\textquotesingle:) variable (:\textquotesingle:)=(:\textquotesingle:) expr (:\textquotesingle:))(:\textquotesingle:);
+        				\end{lstlisting}
+        				
+        			\item \textbf{\textit{WHILE}:}\\
+        				Usada a sintaxe padrão do Java, onde existe apenas a condição de parada do laço:
+        				\begin{lstlisting}
+(:\textquotesingle:)while(:\textquotesingle:) cond=expr ((:\textquotesingle:)&&(:\textquotesingle:) cond=expr)* | ((:\textquotesingle:)||(:\textquotesingle:) cond=expr)* block;
+        				\end{lstlisting}
+        		\end{itemize}
+
+	\subsection{\normalsize CARACTERÍSTICAS ADICIONAIS DA LINGUAGEM}
+            Fora o operador adicional (módulo), comentado na seção de operadores, a presente linguagem apresenta, como características adicionais:
+			
+			\begin{itemize}
+				\item Suporte à Comentários:\\
+					Sejam eles de linha única ou de múltiplas linhas, seguindo a sintaxe de comentários da linguagem \textit{Java}.
+					\begin{lstlisting}
+//Comentário de linha única
+/*Comentário longo
+com mais de uma linha
+*/
+					\end{lstlisting}
+
+            \begin{lstlisting}
+COMMENT: (:\textquotesingle:)/*(:\textquotesingle:) .*? (:\textquotesingle:)*/(:\textquotesingle:) -> skip;
+LINE_COMMENT: (:\textquotesingle:)//(:\textquotesingle:) ~[\r\n]* -> skip;]
+            \end{lstlisting}
+            
+            		\item \&\& e $||$ Lógicos:\\
+            			Foi adicionado também a capacidade de adicionar Es (\&\&) e OUs ($||$) nas condicionais das estruturas \textit{if-then-else} e \textit{while}. Sendo que o uso desses operadores pode ocorrer com o uso de duas sintaxes:
+            			\begin{lstlisting}
+if a > 3 && b == 0 {
+...
+}
+
+if (a > 3) && (b == 0) {
+...
+}
+
+while c < 1 || d == 1 {
+...
+}
+
+while (c < 1) || (d == 1) {
+...
+}
+					\end{lstlisting}
+
+                \item \textbf{STRING:}\\
+                    A definição de \textit{string} usada nesse trabalho comporta tanto caractéres isolados quanto textos longos. Além disso, existem dois caractéres usados para se delimitar e definir uma \textit{string}, a saber: \textquotesingle \vspace{0.1cm} e \textquotedbl.
+
+                    \begin{lstlisting}
+STRING: (:\textquotesingle:)\(:\textquotesingle\textquotesingle:)~[\r\n(:\textquotesingle:)]* (:\textquotesingle:)\(:\textquotesingle\textquotesingle:) | (:\textquotesingle:)"(:\textquotesingle:)~[\r\n(:\textquotesingle:)]*(:\textquotesingle:)"(:\textquotesingle:);
+                    \end{lstlisting}
+            \end{itemize}
+			\end{itemize}			            

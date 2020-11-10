@@ -6,13 +6,13 @@ expr : variable '=' expr ';'
      | number                       
      | function_def                 
      | expr expr                    
-     | OPEN_PAREN expr CLOSE_PAREN  
+     | '(' expr ')'  
      | STRING
      | 'return' expr ';'
      | ID
      | call
      | expr operators ';'
-     | exp
+     | '-'? exp
      | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
      | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block 
      | 'for' forexpr block
@@ -46,8 +46,8 @@ summ: left=mult (op=('+'|'-') right=summ)*;
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
-   : '(' exp ')'
-   | number
+   : '(' '-'?exp ')'
+   | '-'?number
    | BOOL
    | STRING
    | ID
@@ -63,14 +63,9 @@ ID : ID_START ID_BODY*;
 COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
-// Parentêses
-OPEN_PAREN : '(';
-CLOSE_PAREN : ')';
-
 // Números
-NUMBER : INT | UINT | FLOAT;
+NUMBER : INT | FLOAT;
 INT: [0-9]+;
-UINT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 
 // Booleano
