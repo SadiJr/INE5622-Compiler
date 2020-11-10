@@ -25,7 +25,7 @@ switch testeSwitch{
     case 1
         t = 0.123 + 1.234;
     case 2;
-        whale (a == b) && (b == c){
+        while (a == b) && (b == c){
             a = a5c;
         };
 }
