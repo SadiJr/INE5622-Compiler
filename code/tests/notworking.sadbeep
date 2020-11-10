@@ -2,25 +2,20 @@
 Outro comentário
 Mais um comentário*/
 
-func hellowordl() {
+funct wrong() {
     print("Hello Wordl!");
 
     a = --2;
 
     for(y < 42; y = y + 1){
         string = teste de string";
-        int = 1;
         float = 0,123;
     }
-
-    test(a);
 
     c = ((1 + 2) - 3) * 9 / 4
 }
 
-func test(2+2) {
-    if (a > 3 && a < 6){
-    }
+if (a > 3 && a < 6){
 }
 
 q = (1+1)$(-8);
@@ -30,7 +25,7 @@ switch testeSwitch{
     case 1
         t = 0.123 + 1.234;
     case 2;
-        whale (a == b) && (b == c){
+        while (a == b) && (b == c){
             a = a5c;
         };
 }
