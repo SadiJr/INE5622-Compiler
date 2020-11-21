@@ -8,3 +8,4 @@
 *.tokens
 *.interp
 /temp/*
+.idea/*
