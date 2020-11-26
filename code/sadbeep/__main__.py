@@ -33,6 +33,7 @@ def main():
     parser_args.add_argument('-l', metavar='*.ll', type=str, help='llvm output')
     parser_args.add_argument('-s', metavar='*.s', type=str, help='native assembly output')
     parser_args.add_argument('-o', metavar='', type=str, default='a.out', help='binary output')
+    parser_args.add_argument('--clang', action='store_const', const=True, help='use clang instead of gcc to assemble')
 
     args = parser_args.parse_args()
     #################################
@@ -43,11 +44,11 @@ def main():
     stream = CommonTokenStream(lexer)
     parser = sadbeepParser(stream)
 
-    tree = parser.start()  # Get AST
+    tree = parser.parse()  # Get AST
 
     # Transverse AST to generate llvm
     ll = llvmVisitor(args.input)
-    ll.visitStart(tree)
+    ll.visitParse(tree)
     #################################
 
     # Output llvm

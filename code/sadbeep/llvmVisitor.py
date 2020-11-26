@@ -66,38 +66,38 @@ class llvmVisitor(sadbeepVisitor):
 
         return self.visit(ctx.statms())  # Build the function body
 
-    def visitWhile(self, ctx: sadbeepParser.WhileContext):
-        """Build while statement"""
-        block_while = self.builder.append_basic_block(name='loop')
-        block_next = self.builder.append_basic_block(name='next')
+    # def visitWhile(self, ctx: sadbeepParser.WhileContext):
+    #     """Build while statement"""
+    #     block_while = self.builder.append_basic_block(name='loop')
+    #     block_next = self.builder.append_basic_block(name='next')
+    #
+    #     self.builder.branch(block_while)  # End the current block
+    #
+    #     # Switch contex for the loop block
+    #     with self.builder.goto_block(block_while):
+    #         zero = ir.Constant(ir.IntType(32), 0)
+    #         result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp')
+    #         with self.builder.if_then(result):  # Execute if 0 < cond
+    #             self.visit(ctx.statms())  # Build while body
+    #             self.builder.branch(block_while)  # Loop
+    #         self.builder.branch(block_next)  # End loop
+    #     #################################
+    #
+    #     self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
 
-        self.builder.branch(block_while)  # End the current block
-
-        # Switch contex for the loop block
-        with self.builder.goto_block(block_while):
-            zero = ir.Constant(ir.IntType(32), 0)
-            result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp')
-            with self.builder.if_then(result):  # Execute if 0 < cond
-                self.visit(ctx.statms())  # Build while body
-                self.builder.branch(block_while)  # Loop
-            self.builder.branch(block_next)  # End loop
-        #################################
-
-        self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
-
-    def visitIf(self, ctx: sadbeepParser.IfContext):
-        """Build if statement"""
-        zero = ir.Constant(ir.IntType(32), 0)
-        result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='temp_if_cmp')
-        if ctx.ELSE():  # if-then-else
-            with self.builder.if_else(result) as (then, otherwise):
-                with then:
-                    self.visit(ctx.then)  # Build then body
-                with otherwise:
-                    self.visit(ctx.otherwise)  # Build else body
-        else:  # if-then
-            with self.builder.if_then(result):
-                self.visit(ctx.then)  # Build then body
+    # def visitIf(self, ctx: sadbeepParser.IfContext):
+    #     """Build if statement"""
+    #     zero = ir.Constant(ir.IntType(32), 0)
+    #     result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='temp_if_cmp')
+    #     if ctx.ELSE():  # if-then-else
+    #         with self.builder.if_else(result) as (then, otherwise):
+    #             with then:
+    #                 self.visit(ctx.then)  # Build then body
+    #             with otherwise:
+    #                 self.visit(ctx.otherwise)  # Build else body
+    #     else:  # if-then
+    #         with self.builder.if_then(result):
+    #             self.visit(ctx.then)  # Build then body
 
     def visitArgs(self, ctx: sadbeepParser.ArgsContext) -> List[str]:
         """Return the arguments id list"""
@@ -114,16 +114,16 @@ class llvmVisitor(sadbeepVisitor):
         """Build expresions and return the list of results"""
         return [self.visit(x) for x in ctx.expr()]
 
-    def visitAssign(self, ctx: sadbeepParser.AssignContext):
-        """Build assing statement"""
-        expr = self.visit(ctx.expr())
-        if not str(ctx.ID()) in self.id_table:  # Create table entry if variable is not defined
-            self.id_table[str(ctx.ID())] = self.builder.alloca(ir.IntType(32), name=str(ctx.ID()))
-        self.builder.store(expr, self.id_table[str(ctx.ID())])
+    # def visitAssign(self, ctx: sadbeepParser.AssignContext):
+    #     """Build assing statement"""
+    #     expr = self.visit(ctx.expr())
+    #     if not str(ctx.ID()) in self.id_table:  # Create table entry if variable is not defined
+    #         self.id_table[str(ctx.ID())] = self.builder.alloca(ir.IntType(32), name=str(ctx.ID()))
+    #     self.builder.store(expr, self.id_table[str(ctx.ID())])
 
-    def visitReturn(self, ctx: sadbeepParser.ReturnContext):
-        """Build return statement that ends the block"""
-        self.builder.ret(self.visit(ctx.expr()))
+    # def visitReturn(self, ctx: sadbeepParser.ReturnContext):
+    #     """Build return statement that ends the block"""
+    #     self.builder.ret(self.visit(ctx.expr()))
 
     def visitAtom(self, ctx: sadbeepParser.AtomContext):
         """Build atomic expressions"""
@@ -177,9 +177,9 @@ class llvmVisitor(sadbeepVisitor):
                 return self.builder.sdiv(left, right, name='tmp_div')
         return left
 
-    def visitPrint(self, ctx: sadbeepParser.PrintContext):
-        """Build print expresion"""
-        self.builder.call(self.func_table['printf'],
-                          (self.global_fmt.bitcast(ir.IntType(8).as_pointer()), self.visit(ctx.expr())),
-                          name='printf_ret')
+    # def visitPrint(self, ctx: sadbeepParser.PrintContext):
+    #     """Build print expresion"""
+    #     self.builder.call(self.func_table['printf'],
+    #                       (self.global_fmt.bitcast(ir.IntType(8).as_pointer()), self.visit(ctx.expr())),
+    #                       name='printf_ret')
 
