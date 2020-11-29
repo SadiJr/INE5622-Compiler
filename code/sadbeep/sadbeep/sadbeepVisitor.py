@@ -1,4 +1,4 @@
-# Generated from /home/marcos/PycharmProjects/INE5622-Compiler/code/sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.8
+# Generated from sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .sadbeepParser import sadbeepParser
@@ -14,8 +14,88 @@ class sadbeepVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by sadbeepParser#expr.
-    def visitExpr(self, ctx:sadbeepParser.ExprContext):
+    # Visit a parse tree produced by sadbeepParser#expr_parenthesis.
+    def visitExpr_parenthesis(self, ctx:sadbeepParser.Expr_parenthesisContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#or.
+    def visitOr(self, ctx:sadbeepParser.OrContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#for.
+    def visitFor(self, ctx:sadbeepParser.ForContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_function.
+    def visitExpr_function(self, ctx:sadbeepParser.Expr_functionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#while.
+    def visitWhile(self, ctx:sadbeepParser.WhileContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#switch.
+    def visitSwitch(self, ctx:sadbeepParser.SwitchContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_call.
+    def visitExpr_call(self, ctx:sadbeepParser.Expr_callContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_follow.
+    def visitExpr_follow(self, ctx:sadbeepParser.Expr_followContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_operators.
+    def visitExpr_operators(self, ctx:sadbeepParser.Expr_operatorsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_number.
+    def visitExpr_number(self, ctx:sadbeepParser.Expr_numberContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#else.
+    def visitElse(self, ctx:sadbeepParser.ElseContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_string.
+    def visitExpr_string(self, ctx:sadbeepParser.Expr_stringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_negative.
+    def visitExpr_negative(self, ctx:sadbeepParser.Expr_negativeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#if.
+    def visitIf(self, ctx:sadbeepParser.IfContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#return.
+    def visitReturn(self, ctx:sadbeepParser.ReturnContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#assign.
+    def visitAssign(self, ctx:sadbeepParser.AssignContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#expr_ID.
+    def visitExpr_ID(self, ctx:sadbeepParser.Expr_IDContext):
         return self.visitChildren(ctx)
 
 

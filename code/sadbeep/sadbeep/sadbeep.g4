@@ -2,26 +2,28 @@ grammar sadbeep;
 
 parse : expr* EOF;
 
-expr : variable '=' expr ';'       
-     | number                       
-     | function_def                 
-     | expr expr                    
-     | '(' expr ')'  
-     | STRING
-     | 'return' expr ';'
-     | ID
-     | call
-     | expr operators ';'
-     | '-'? exp
-     | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
-     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block 
-     | 'for' forexpr block
-     | 'switch' expr? '{' (cases)+ '}'                         
+expr : variable '=' expr ';'                                    # assign
+     | number                                                   # expr_number
+     | function_def                                             # expr_function
+     | expr expr                                                # expr_follow
+     | '(' expr ')'                                             # expr_parenthesis
+     | STRING                                                   # expr_string
+     | 'return' expr ';'                                        # return
+     | ID                                                       # expr_ID
+     | call                                                     # expr_call
+     | expr operators ';'                                       # expr_operators
+     | '-'? exp                                                 # expr_negative
+     | 'if' cond=expr ('&&' cond=expr)*                         # if
+     | ('||' cond=expr)* then=block ('else' otherwise=block)?   # else
+     | 'while' cond=expr ('&&' cond=expr)*                      # while
+     | ('||' cond=expr)* block                                  # or
+     | 'for' forexpr block                                      # for
+     | 'switch' expr? '{' (cases)+ '}'                          # switch
      ;
 
 operators: mult | summ;
 
-number: NUMBER;
+number: INT | FLOAT;
 
 variable: ID;
 
@@ -69,8 +71,8 @@ INT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 
 // Booleano
-TRUE: 'true';
-FALSE: 'false';
+TRUE: 'True';
+FALSE: 'False';
 BOOL: TRUE | FALSE;
 
 // String

@@ -1,9 +1,8 @@
-# Generated from /home/marcos/PycharmProjects/INE5622-Compiler/code/sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.8
+# Generated from sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.7.2
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
 import sys
-
 
 
 def serializedATN():
@@ -113,9 +112,9 @@ def serializedATN():
         buf.write("\u00f7\u00f5\3\2\2\2\u00f7\u00f8\3\2\2\2\u00f8\u00f9\3")
         buf.write("\2\2\2\u00f9\u00fb\7\60\2\2\u00fa\u00fc\t\4\2\2\u00fb")
         buf.write("\u00fa\3\2\2\2\u00fc\u00fd\3\2\2\2\u00fd\u00fb\3\2\2\2")
-        buf.write("\u00fd\u00fe\3\2\2\2\u00feN\3\2\2\2\u00ff\u0100\7v\2\2")
+        buf.write("\u00fd\u00fe\3\2\2\2\u00feN\3\2\2\2\u00ff\u0100\7V\2\2")
         buf.write("\u0100\u0101\7t\2\2\u0101\u0102\7w\2\2\u0102\u0103\7g")
-        buf.write("\2\2\u0103P\3\2\2\2\u0104\u0105\7h\2\2\u0105\u0106\7c")
+        buf.write("\2\2\u0103P\3\2\2\2\u0104\u0105\7H\2\2\u0105\u0106\7c")
         buf.write("\2\2\u0106\u0107\7n\2\2\u0107\u0108\7u\2\2\u0108\u0109")
         buf.write("\7g\2\2\u0109R\3\2\2\2\u010a\u010d\5O(\2\u010b\u010d\5")
         buf.write("Q)\2\u010c\u010a\3\2\2\2\u010c\u010b\3\2\2\2\u010dT\3")
@@ -195,7 +194,7 @@ class sadbeepLexer(Lexer):
             "'||'", "'else'", "'while'", "'for'", "'switch'", "'{'", "'}'", 
             "'func'", "'case'", "':'", "'break;'", "'>'", "'<'", "'>='", 
             "'<='", "'=='", "'!='", "'+'", "'*'", "'/'", "'%'", "'input'", 
-            "'true'", "'false'", "'.'", "','" ]
+            "'True'", "'False'", "'.'", "','" ]
 
     symbolicNames = [ "<INVALID>",
             "ID", "COMMENT", "LINE_COMMENT", "NUMBER", "INT", "FLOAT", "TRUE", 
@@ -213,7 +212,7 @@ class sadbeepLexer(Lexer):
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.8")
+        self.checkVersion("4.7.2")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None
