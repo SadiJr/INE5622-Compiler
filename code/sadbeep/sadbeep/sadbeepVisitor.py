@@ -1,4 +1,4 @@
-# Generated from sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.7.2
+# Generated from /home/sadi/Curso/Fase Atual/Introdução a Compiladores/Implementação de Compiladores/INE5622-Compiler/code/sadbeep/sadbeep/sadbeep.g4 by ANTLR 4.8
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .sadbeepParser import sadbeepParser
@@ -51,6 +51,11 @@ class sadbeepVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by sadbeepParser#expr_follow.
     def visitExpr_follow(self, ctx:sadbeepParser.Expr_followContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by sadbeepParser#print.
+    def visitPrint(self, ctx:sadbeepParser.PrintContext):
         return self.visitChildren(ctx)
 
 

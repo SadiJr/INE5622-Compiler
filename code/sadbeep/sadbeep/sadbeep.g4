@@ -3,6 +3,7 @@ grammar sadbeep;
 parse : expr* EOF;
 
 expr : variable '=' expr ';'                                    # assign
+     | 'print' expr ';'                                         # print
      | number                                                   # expr_number
      | function_def                                             # expr_function
      | expr expr                                                # expr_follow
