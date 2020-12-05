@@ -2,29 +2,26 @@ grammar sadbeep;
 
 parse : expr* EOF;
 
-expr : variable '=' expr ';'                                    # assign
-     | 'print' expr ';'                                         # print
-     | number                                                   # expr_number
-     | function_def                                             # expr_function
-     | expr expr                                                # expr_follow
-     | '(' expr ')'                                             # expr_parenthesis
-     | STRING                                                   # expr_string
-     | 'return' expr ';'                                        # return
-     | ID                                                       # expr_ID
-     | call                                                     # expr_call
-     | expr operators ';'                                       # expr_operators
-     | '-'? exp                                                 # expr_negative
-     | 'if' cond=expr ('&&' cond=expr)*                         # if
-     | ('||' cond=expr)* then=block ('else' otherwise=block)?   # else
-     | 'while' cond=expr ('&&' cond=expr)*                      # while
-     | ('||' cond=expr)* block                                  # or
-     | 'for' forexpr block                                      # for
-     | 'switch' expr? '{' (cases)+ '}'                          # switch
+expr : variable '=' expr ';'                                                                            # assign
+     | number                                                                                           # numbers
+     | function_def                                                                                     # func
+     | expr expr                                                                                        # tafuck
+     | '(' expr ')'                                                                                     # paren
+     | STRING                                                                                           # text
+     | 'return' expr ';'                                                                                # return
+     | ID                                                                                               # var
+     | call                                                                                             # callfunc
+     | expr operators ';'                                                                               # operators
+     | '-'? exp                                                                                         # neg
+     | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?        # if
+     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block                                    # while
+     | 'for' forexpr block                                                                              # for
+     | 'switch' expr? '{' (cases)+ '}'                                                                  # switch
      ;
 
 operators: mult | summ;
 
-number: INT | FLOAT;
+number: NUMBER;
 
 variable: ID;
 
@@ -72,8 +69,8 @@ INT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 
 // Booleano
-TRUE: 'True';
-FALSE: 'False';
+TRUE: 'true';
+FALSE: 'false';
 BOOL: TRUE | FALSE;
 
 // String
