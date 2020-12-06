@@ -11,10 +11,10 @@ expr : variable '=' expr ';'                                                    
      | 'return' expr ';'                                                                                # return
      | ID                                                                                               # var
      | call                                                                                             # callfunc
-     | expr operators ';'                                                                               # operators
+     | expr operators ';'                                                                               # operator
      | '-'? exp                                                                                         # neg
-     | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?        # if
-     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block                                    # while
+     | 'if' cond=expr ('&&' cond=expr | '||' cond=expr)* then=block ('else' otherwise=block)?           # if
+     | 'while' cond=expr ('&&' cond=expr | '||' cond=expr)* block                                       # while
      | 'for' forexpr block                                                                              # for
      | 'switch' expr? '{' (cases)+ '}'                                                                  # switch
      ;
