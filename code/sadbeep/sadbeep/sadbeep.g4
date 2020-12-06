@@ -3,9 +3,10 @@ grammar sadbeep;
 parse : expr* EOF;
 
 expr : variable '=' expr ';'                                                                            # assign
+     | 'print' expr ';'                                                                                 # print
      | number                                                                                           # numbers
      | function_def                                                                                     # func
-     | expr expr                                                                                        # tafuck
+     | expr expr                                                                                        # expression
      | '(' expr ')'                                                                                     # paren
      | STRING                                                                                           # text
      | 'return' expr ';'                                                                                # return

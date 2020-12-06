@@ -1,8 +1,9 @@
+import argparse
 from antlr4 import FileStream, CommonTokenStream
+from llvmlite import binding
 from os import path
 from sys import argv
-from llvmlite import binding
-import argparse
+
 from .assemble import assemble
 
 try:
@@ -44,11 +45,12 @@ def main():
     parser = sadbeepParser(stream)
 
     tree = parser.parse()  # Get AST
+    print(f"Parser DF is {parser.getDFAStrings()}")
+    print(f"Tree is {tree.toStringTree()}")
 
     # Transverse AST to generate llvm
     vis = visitor(args.input)
     vis.visitParse(tree)
-
     #################################
 
     # Output llvm
@@ -64,8 +66,6 @@ def main():
     #################################
 
     # Assemble and link
-    print(vis)
-    print(type(vis.asm()))
     assemble(str(vis.module) if args.clang else vis.asm(),
              args.o,
              gcc=not args.clang)

@@ -1,15 +1,21 @@
-from .sadbeep.sadbeepParser import sadbeepParser
-from .sadbeep.sadbeepVisitor import sadbeepVisitor
 from llvmlite import binding
 from llvmlite import ir
 from typing import List
 
-class visitor(sadbeepVisitor):
+from .sadbeep.sadbeepParser import sadbeepParser
+from .sadbeep.sadbeepVisitor import sadbeepVisitor
 
+
+class visitor(sadbeepVisitor):
     def __init__(self, file_name):
         self.table = {}
-        self.file_name = file_name  # used for error messages
-        self.module = ir.Module()  # LLVM module
+        self.module = ir.Module()
+        self.file_name = file_name
+
+        ftype = ir.FunctionType(ir.IntType(32), [])
+        self.main = ir.Function(self.module, ftype=ftype, name='main')
+        entry_block = self.main.append_basic_block(name='entry')
+        self.builder = ir.IRBuilder(entry_block)
 
         # Declare C printf and scanf in the module
         p_type = ir.FunctionType(ir.IntType(32), [ir.IntType(8).as_pointer()], var_arg=True)
@@ -35,110 +41,67 @@ class visitor(sadbeepVisitor):
         self.global_fmt_in.initializer = fmt_in
         #################################
 
+        self.id_table = {}
+
     def asm(self) -> str:
-        """Return native assembly as str"""
         target_machine = binding.Target.from_default_triple().create_target_machine()
         llvm = binding.parse_assembly(str(self.module))
         return target_machine.emit_assembly(llvm)
 
+    def isInt(self, n) -> bool:
+        try:
+            int(n)
+            return True
+        except:
+            return False
+
+    def visitNumber(self, ctx:sadbeepParser.NumberContext):
+        if self.isInt(ctx.NUMBER()):
+            return ir.Constant(ir.IntType(32), int(ctx.getText()))
+        else:
+            return ir.Constant(ir.IntType(64), float(ctx.getText()))
+
     def visitAssign(self, ctx:sadbeepParser.AssignContext):
-        print(str(ctx.expr()))
-        self.table[str(ctx.variable())] = self.visit(ctx.expr())
+        var = ctx.variable()
+        if var not in self.table:
+            self.id_table[str(ctx.variable())] = self.builder.alloca(ir.IntType(32), name=str(ctx.variable()))
+        self.builder.store(self.visit(ctx.variable()), self.id_table[str(ctx.variable())])
 
-    def visitExpr_number(self, ctx:sadbeepParser.Expr_numberContext):
-        print("expr-number")
-        return self.visit(ctx.number())
-
-    def visitMult(self, ctx: sadbeepParser.MultContext):
+    def visitSumm(self, ctx:sadbeepParser.SummContext):
         left = self.visit(ctx.left)
-        right = self.visit(ctx.right)
-        if ctx.op.text == '*':
-            return left * right
-        elif ctx.op.text == '/':
-            return left / right
-        else:
-            return left % right
 
-    def visitSumm(self, ctx: sadbeepParser.SummContext):
+        if ctx.right:
+            right = self.visit(ctx.right)
+            if ctx.op.text == '+':
+                return self.builder.add(left, right, name='tmp_add')
+            elif ctx.op.text == '-':
+                return self.builder.sub(left, right, name='tmp_sub')
+        return left
+
+    def visitMult(self, ctx:sadbeepParser.MultContext):
         left = self.visit(ctx.left)
-        right = self.visit(ctx.right)
-        if ctx.op.text == '+':
-            return left + right
-        else:
-            return left - right
-
-    def visitExpr_parenthesis(self, ctx: sadbeepParser.Expr_parenthesisContext):
-        return self.visit(ctx.expr())
+        if ctx.right:
+            right = self.visit(ctx.right)
+            if ctx.op.text == '*':
+                return self.builder.mul(left, right, name='tmp_mul')
+            elif ctx.op.text == '/':
+                return self.builder.sdiv(left, right, name='tmp_div')
+        return left
 
     def visitAtom(self, ctx: sadbeepParser.AtomContext):
-        #definir o negativo e o parenteses
-        if ctx.ID():
-            print("id")
-            return self.table[str(ctx.ID())]
-        elif ctx.number():
-            print('number')
-            return self.visit(ctx.number())
-        elif ctx.BOOL():
-            return bool(str(ctx.BOOL()))
+        if ctx.exp():  # Parentheses
+            return self.visit(ctx.expr())
+        elif ctx.ID():  # Load variable
+            if not str(ctx.ID()) in self.id_table:
+                symbol = ctx.ID().getSymbol()
+                raise KeyError(self.file_name + ':' + str(symbol.line) + ':' + str(symbol.column) + ' variable ' + str(
+                    ctx.ID()) + ' is not defined')
+            return self.builder.load(self.id_table[str(ctx.ID())], name='tmp_' + str(ctx.ID()))
+        elif ctx.number():  # Constant
+            return ir.Constant(ir.IntType(32), int(str(ctx.number())))
 
-    def visitNumber(self, ctx: sadbeepParser.NumberContext):
-        print('number')
-        if ctx.INT():
-            return int(str(ctx.INT()))
-        else:
-            return float(str(ctx.FLOAT()))
-
-    def visitParse(self, ctx:sadbeepParser.ParseContext):
-        print("Iniciando no parser")
-        return self.visitChildren(ctx)
-
-    def visitAssign(self, ctx:sadbeepParser.AssignContext):
-        self.table[str(ctx.ID())] = self.visit(ctx.exp())
+    def visitReturn(self, ctx:sadbeepParser.ReturnContext):
+        self.builder.ret(self.visit(ctx.expr()))
 
     def visitPrint(self, ctx:sadbeepParser.PrintContext):
         self.builder.call(self.table['printf'], (self.global_fmt.bitcast(ir.IntType(8).as_pointer()), self.visit(ctx.expr())), name='printf_ret')
-
-    def visitFunction_def(self, ctx:sadbeepParser.Function_defContext):
-        """Build function"""
-        print('Linha 103')
-        args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
-        func_type = ir.FunctionType(ir.IntType(32),
-                                    [ir.IntType(32) for _ in args])  # Function type (similator to C)
-        #                           ^Return type^^  ^Argument types (all i32)^^^^^
-
-        # Add function to table and set the builder
-        self.table[ctx.name.text] = ir.Function(self.module, func_type, name=ctx.name.text)
-        self.func = self.table[ctx.name.text]
-        self.block = self.func.append_basic_block(name='entry')  # Initialize the first block
-        self.builder = ir.IRBuilder(self.block)
-        #################################
-
-        self.id_table = {}  # Function id table
-
-        # Copy the arguments and populate the id table
-        for i in range(len(args)):
-            self.func.args[i].name = args[i]
-            self.id_table[args[i]] = self.builder.alloca(ir.IntType(32), name=args[i])
-            self.builder.store(self.func.args[i], self.id_table[args[i]])
-            #################################
-        print('Linha 124')
-        return self.visit(ctx.block())  # Build the function body
-
-    def visitArgs(self, ctx:sadbeepParser.ArgsContext) -> List[str]:
-        """Return the arguments id list"""
-        return [str(x) for x in ctx.ID()]
-
-    def visitIf(self, ctx:sadbeepParser.IfContext):
-        """Build if statement"""
-        zero = ir.Constant(ir.IntType(32), 0)
-        result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='temp_if_cmp')
-        if ctx.ELSE():  # if-then-else
-            with self.builder.if_else(result) as (then, otherwise):
-                with then:
-                    self.visit(ctx.then)  # Build then body
-                with otherwise:
-                    self.visit(ctx.otherwise)  # Build else body
-        else:  # if-then
-            with self.builder.if_then(result):
-                self.visit(ctx.then)  # Build then body
-

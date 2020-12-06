@@ -1,5 +1,5 @@
-import tempfile
 import subprocess
+import tempfile
 
 
 def assemble(asm_input, bin_output, gcc):
