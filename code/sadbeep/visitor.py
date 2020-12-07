@@ -72,6 +72,16 @@ class visitor(sadbeepVisitor):
         self.visitChildren(ctx)
         self.builder.ret(ir.Constant(ir.IntType(32), 0))
 
+    def visitExp(self, ctx:sadbeepParser.ExpContext):
+        """Build lowest priority expresions"""
+        left = self.visit(ctx.left)
+        if ctx.right: # >, <, >=, <=, ==, !=
+            right = self.visit(ctx.right)
+            result = self.builder.icmp_signed(ctx.op.text, left, right, name='tmp_cmp_b')
+            return self.builder.zext(result, ir.IntType(32), name='tmp_cmp') # as result is i1, zero-extend it to i32
+        else: # higher priority expsetion
+             return left
+
     def visitNumber(self, ctx:sadbeepParser.NumberContext):
         if self.isInt(ctx.NUMBER()):
             return ir.Constant(ir.IntType(32), int(ctx.getText()))
@@ -80,7 +90,7 @@ class visitor(sadbeepVisitor):
 
     def visitNeg(self, ctx:sadbeepParser.NegContext):
         exp = self.visit(ctx.exp())
-        if ctx.LESS:
+        if ctx.getText().startswith('-'):
             if exp.type.__class__ == ir.IntType:
                 return self.builder.neg(exp, name='tmp_neg')
             else:
@@ -91,7 +101,7 @@ class visitor(sadbeepVisitor):
         var = self.visit(ctx.expr())
 
         id = ctx.variable().getText()
-        if var not in self.table:
+        if id not in self.table:
             self.table[id] = self.builder.alloca(var.type, name=id)
 
         self.builder.store(var, self.table[id])
@@ -149,10 +159,6 @@ class visitor(sadbeepVisitor):
 
         self.builder.call(self.printf, [form.bitcast(ir.IntType(8).as_pointer()), exp])
 
-    def visitVariable(self, ctx:sadbeepParser.VariableContext):
-        print('Line 155')
-        print(ctx.toStringTree())
-
     def visitFunction_def(self, ctx:sadbeepParser.Function_defContext):
         print('Line 167')
         args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
@@ -194,10 +200,6 @@ class visitor(sadbeepVisitor):
         print('Line 191')
         print(node)
 
-    def visitExp(self, ctx:sadbeepParser.ExpContext):
-        print('Line 195')
-        return self.visit(ctx.left)
-
     def visitExpression(self, ctx:sadbeepParser.ExpressionContext):
         print('Line 199')
         self.visitChildren(ctx)
@@ -209,9 +211,6 @@ class visitor(sadbeepVisitor):
     def visitForexpr(self, ctx:sadbeepParser.ForexprContext):
         print('Line 207')
         print(ctx.toStringTree())
-
-    def visitFunc(self, ctx:sadbeepParser.FuncContext):
-        return self.visit(ctx.function_def())
 
     def visitWhile(self, ctx: sadbeepParser.WhileContext):
         print('Line 236')
@@ -251,7 +250,7 @@ class visitor(sadbeepVisitor):
                 self.visit(ctx.then)  # Build then body
 
     def visitParen(self, ctx:sadbeepParser.ParenContext):
-        print('Line 223')
+        print(f'Line 223: {ctx.getText()}')
         return self.visit(ctx.expr())
 
     def visitSwitch(self, ctx:sadbeepParser.SwitchContext):
