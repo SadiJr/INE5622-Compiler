@@ -25,13 +25,13 @@ class visitor(sadbeepVisitor):
         ftype = ir.FunctionType(ir.IntType(8), [ir.IntType(8).as_pointer()], var_arg=True)
         self.printf = ir.Function(self.module, ftype=ftype, name='printf')
 
-        form_int = "print int: %d\n\0"
+        form_int = "Imprimindo essa caralha de int: %d\n\0"
         form_const_int = ir.Constant(ir.ArrayType(ir.IntType(8), len(form_int)), bytearray(form_int.encode('utf8')))
 
         self.form_int = ir.GlobalVariable(self.module, form_const_int.type, name='form_int')
         self.form_int.initializer = form_const_int
 
-        form_float = "print float: %f\n\0"
+        form_float = "Imprimindo esse filho da puta de float: %f\n\0"
         form_const_float = ir.Constant(ir.ArrayType(ir.IntType(8), len(form_float)),
                                        bytearray(form_float.encode('utf8')))
 
@@ -80,10 +80,19 @@ class visitor(sadbeepVisitor):
         else:
             return ir.Constant(ir.IntType(64), float(ctx.getText()))
 
+    def visitNeg(self, ctx:sadbeepParser.NegContext):
+        exp = self.visit(ctx.exp())
+        if ctx.LESS:
+            if exp.type.__class__ == ir.IntType:
+                return self.builder.neg(exp, name='tmp_neg')
+            else:
+                return self.builder.fsub(ir.Constant(ir.FloatType(), 0), exp, name='neg_float')
+        return exp
+
     def visitAssign(self, ctx:sadbeepParser.AssignContext):
         var = self.visit(ctx.expr())
 
-        id = str(ctx.variable())
+        id = ctx.variable().getText()
         if var not in self.table:
             self.id_table[id] = self.builder.alloca(var.type, name=id)
 
@@ -114,24 +123,21 @@ class visitor(sadbeepVisitor):
         if ctx.exp():  # Parentheses
             return self.visit(ctx.exp())
         elif ctx.ID():  # Load variable
-            if not str(ctx.ID()) in self.id_table:
+            if not ctx.ID().getText() in self.id_table:
                 symbol = ctx.ID().getSymbol()
                 raise KeyError(self.file_name + ':' + str(symbol.line) + ':' + str(symbol.column) + ' variable ' + str(
                     ctx.ID()) + ' is not defined')
             return self.builder.load(self.id_table[str(ctx.ID())], name='tmp_' + str(ctx.ID()))
-        elif self.isInt(ctx.number()):  # Constant
+        elif self.isInt(ctx.number().getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.number().getText())))
         else:
             return ir.Constant(ir.FloatType(), float(str(ctx.number().getText())))
 
     def visitNumbers(self, ctx:sadbeepParser.NumbersContext):
-        num = self.visit(ctx.number())
-
         if self.isInt(ctx.getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.getText())))
         else:
-            return ir.Constant(ir.FloatType(), float(str(num)))
-
+            return ir.Constant(ir.FloatType(), float(str(ctx.getText())))
 
     def visitReturn(self, ctx:sadbeepParser.ReturnContext):
         self.builder.ret(self.visit(ctx.expr()))

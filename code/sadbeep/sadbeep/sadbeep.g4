@@ -10,10 +10,9 @@ expr : variable '=' expr ';'                                                    
      | '(' expr ')'                                                                                     # paren
      | STRING                                                                                           # text
      | 'return' expr ';'                                                                                # return
-     | ID                                                                                               # var
      | call                                                                                             # callfunc
      | expr operators ';'                                                                               # operator
-     | '-'? exp                                                                                         # neg
+     | LESS? exp                                                                                         # neg
      | 'if' cond=expr ('&&' cond=expr | '||' cond=expr)* then=block ('else' otherwise=block)?           # if
      | 'while' cond=expr ('&&' cond=expr | '||' cond=expr)* block                                       # while
      | 'for' forexpr block                                                                              # for
@@ -47,8 +46,8 @@ summ: left=mult (op=('+'|'-') right=summ)*;
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
-   : '(' '-'?exp ')'
-   | '-'?number
+   : '(' LESS?exp ')'
+   | LESS?number
    | BOOL
    | STRING
    | ID
@@ -59,6 +58,8 @@ fragment ID_START : [a-zA-Z]+;
 fragment ID_BODY : ID_START | NUMBER;
 
 ID : ID_START ID_BODY*;
+
+LESS : '-';
 
 // Comentário
 COMMENT: '/*' .*? '*/' -> skip;
