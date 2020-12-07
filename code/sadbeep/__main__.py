@@ -45,8 +45,6 @@ def main():
     parser = sadbeepParser(stream)
 
     tree = parser.parse()  # Get AST
-    print(f"Parser DF is {parser.getDFAStrings()}")
-    print(f"Tree is {tree.toStringTree()}")
 
     # Transverse AST to generate llvm
     vis = visitor(args.input)

@@ -56,8 +56,6 @@ class visitor(sadbeepVisitor):
         self.global_fmt_in.initializer = fmt_in
         #################################
 
-        self.id_table = {}
-
     def asm(self) -> str:
         target_machine = binding.Target.from_default_triple().create_target_machine()
         llvm = binding.parse_assembly(str(self.module))
@@ -94,18 +92,15 @@ class visitor(sadbeepVisitor):
 
         id = ctx.variable().getText()
         if var not in self.table:
-            self.id_table[id] = self.builder.alloca(var.type, name=id)
+            self.table[id] = self.builder.alloca(var.type, name=id)
 
-        self.builder.store(var, self.id_table[id])
+        self.builder.store(var, self.table[id])
 
     def visitSumm(self, ctx:sadbeepParser.SummContext):
         left = self.visit(ctx.left)
 
         if ctx.right:
             right = self.visit(ctx.right)
-            if right.type.__class__ == ir.FunctionType:
-                right = right.function.return_value
-
             if ctx.op.text == '+':
                 return self.builder.add(left, right, name='tmp_add')
             elif ctx.op.text == '-':
@@ -126,15 +121,15 @@ class visitor(sadbeepVisitor):
         if ctx.exp():  # Parentheses
             return self.visit(ctx.exp())
         elif ctx.ID():  # Load variable
-            if not ctx.ID().getText() in self.id_table:
+            if not ctx.ID().getText() in self.table:
                 symbol = ctx.ID().getSymbol()
                 raise KeyError(self.file_name + ':' + str(symbol.line) + ':' + str(symbol.column) + ' variable ' + str(
                     ctx.ID()) + ' is not defined')
-            return self.builder.load(self.id_table[str(ctx.ID())], name='tmp_' + str(ctx.ID()))
+            return self.builder.load(self.table[str(ctx.ID())], name='tmp_' + str(ctx.ID()))
         elif self.isInt(ctx.number().getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.number().getText())))
         else:
-            return ir.Constant(ir.FloatType(), float(str(ctx.number().getText())))
+            return ir.Constant(ir.FloatType(),(float(str(ctx.number().getText()))))
 
     def visitNumbers(self, ctx:sadbeepParser.NumbersContext):
         if self.isInt(ctx.getText()):  # Constant
@@ -158,14 +153,6 @@ class visitor(sadbeepVisitor):
         print('Line 155')
         print(ctx.toStringTree())
 
-    def visitExprs(self, ctx:sadbeepParser.ExprsContext):
-        print('Line 159')
-        print(ctx.toStringTree())
-
-    def visitOperators(self, ctx:sadbeepParser.OperatorsContext):
-        print('Line 163')
-        print(ctx.toStringTree())
-
     def visitFunction_def(self, ctx:sadbeepParser.Function_defContext):
         print('Line 167')
         args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
@@ -173,8 +160,8 @@ class visitor(sadbeepVisitor):
         #                           ^Return type^^  ^Argument types (all i32)^^^^^
 
         # Add function to table and set the builder
-        self.id_table[ctx.name.text] = ir.Function(self.module, func_type, name=ctx.name.text)
-        self.func = self.id_table[ctx.name.text]
+        self.table[ctx.name.text] = ir.Function(self.module, func_type, name=ctx.name.text)
+        self.func = self.table[ctx.name.text]
         self.block = self.func.append_basic_block(name='entry')  # Initialize the first block
         self.builder = ir.IRBuilder(self.block)
         #################################
@@ -182,8 +169,8 @@ class visitor(sadbeepVisitor):
         # Copy the arguments and populate the id table
         for i in range(len(args)):
             self.func.args[i].name = args[i]
-            self.id_table[args[i]] = self.builder.alloca(ir.IntType(32), name=args[i])
-            self.builder.store(self.func.args[i], self.id_table[args[i]])
+            self.table[args[i]] = self.builder.alloca(ir.IntType(32), name=args[i])
+            self.builder.store(self.func.args[i], self.table[args[i]])
         #################################
 
         return self.visit(ctx.block())  # Build the function body
@@ -192,13 +179,12 @@ class visitor(sadbeepVisitor):
         print('Line 171')
         return [str(x) for x in ctx.ID()]
 
-    def visitCall(self, ctx:sadbeepParser.CallContext):
+    def visitCall(self, ctx:sadbeepParser.CallContext) -> ir.CallInstr:
         print('Line 179')
-        print(ctx.toStringTree())
-
-    def visitCallfunc(self, ctx:sadbeepParser.CallfuncContext):
-        print('Line 183')
-        print(ctx.toStringTree())
+        if not ctx.name.text in self.table:
+            raise KeyError(self.file_name + ':' + str(ctx.name.line) + ':' + str(
+                ctx.name.column) + ' function ' + ctx.name.text + ' is not defined')
+        return self.builder.call(self.table[ctx.name.text], self.visit(ctx.exprs()), name='tmp_call')
 
     def visitCases(self, ctx:sadbeepParser.CasesContext):
         print('Line 187')
@@ -263,10 +249,6 @@ class visitor(sadbeepVisitor):
         else:  # if-then
             with self.builder.if_then(result):
                 self.visit(ctx.then)  # Build then body
-
-    def visitOperator(self, ctx:sadbeepParser.OperatorContext):
-        print('Line 219')
-        print(ctx.toStringTree())
 
     def visitParen(self, ctx:sadbeepParser.ParenContext):
         print('Line 223')
