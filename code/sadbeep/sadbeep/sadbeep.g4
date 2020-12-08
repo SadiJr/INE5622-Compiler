@@ -6,16 +6,14 @@ expr : variable '=' expr ';'                                                    
      | 'print' expr ';'                                                                                 # print
      | number                                                                                           # numbers
      | function_def                                                                                     # func
-     | expr expr                                                                                        # expression
      | '(' expr ')'                                                                                     # paren
      | STRING                                                                                           # text
      | 'return' expr ';'                                                                                # return
-     | call                                                                                             # callfunc
-     | expr operators ';'                                                                               # operator
-     | LESS? exp                                                                                         # neg
+     | call                                                                                             # op
+     | LESS? exp                                                                                        # neg
      | 'if' cond=expr ('&&' cond=expr | '||' cond=expr)* then=block ('else' otherwise=block)?           # if
      | 'while' cond=expr ('&&' cond=expr | '||' cond=expr)* block                                       # while
-     | 'for' forexpr block                                                                              # for
+     | 'for' forexpr                                                                                    # for
      | 'switch' expr? '{' (cases)+ '}'                                                                  # switch
      ;
 
@@ -37,7 +35,11 @@ call : name=ID '(' exprs? ')' ';';
 
 exprs : expr (',' expr)*;
 
-forexpr : '(' variable '=' expr ';' cond=expr ';' variable '=' expr ')';
+forexpr : '(' init';' cond=expr ';' finish ')' block;
+
+init: variable '=' expr;
+
+finish: variable '=' expr;
 
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 

@@ -12,11 +12,6 @@ class visitor(sadbeepVisitor):
         self.module = ir.Module()
         self.file_name = file_name
 
-        ftype = ir.FunctionType(ir.IntType(32), [])
-        self.main = ir.Function(self.module, ftype=ftype, name='main')
-        entry_block = self.main.append_basic_block(name='entry')
-        self.builder = ir.IRBuilder(entry_block)
-
         # Declare C printf and scanf in the module
         p_type = ir.FunctionType(ir.IntType(32), [ir.IntType(8).as_pointer()], var_arg=True)
         self.table['__isoc99_scanf'] = ir.Function(self.module, p_type, name='__isoc99_scanf')
@@ -25,13 +20,13 @@ class visitor(sadbeepVisitor):
         ftype = ir.FunctionType(ir.IntType(8), [ir.IntType(8).as_pointer()], var_arg=True)
         self.printf = ir.Function(self.module, ftype=ftype, name='printf')
 
-        form_int = "Imprimindo essa caralha de int: %d\n\0"
+        form_int = "Imprimindo Int: %d\n\0"
         form_const_int = ir.Constant(ir.ArrayType(ir.IntType(8), len(form_int)), bytearray(form_int.encode('utf8')))
 
         self.form_int = ir.GlobalVariable(self.module, form_const_int.type, name='form_int')
         self.form_int.initializer = form_const_int
 
-        form_float = "Imprimindo esse filho da puta de float: %f\n\0"
+        form_float = "Imprimindo Float: %f\n\0"
         form_const_float = ir.Constant(ir.ArrayType(ir.IntType(8), len(form_float)),
                                        bytearray(form_float.encode('utf8')))
 
@@ -81,12 +76,6 @@ class visitor(sadbeepVisitor):
             return self.builder.zext(result, ir.IntType(32), name='tmp_cmp') # as result is i1, zero-extend it to i32
         else: # higher priority expsetion
              return left
-
-    def visitNumber(self, ctx:sadbeepParser.NumberContext):
-        if self.isInt(ctx.NUMBER()):
-            return ir.Constant(ir.IntType(32), int(ctx.getText()))
-        else:
-            return ir.Constant(ir.IntType(64), float(ctx.getText()))
 
     def visitNeg(self, ctx:sadbeepParser.NegContext):
         exp = self.visit(ctx.exp())
@@ -139,10 +128,10 @@ class visitor(sadbeepVisitor):
         elif self.isInt(ctx.number().getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.number().getText())))
         else:
-            return ir.Constant(ir.FloatType(),(float(str(ctx.number().getText()))))
+            return ir.Constant(ir.FloatType(), float(str(ctx.number().getText())))
 
     def visitNumbers(self, ctx:sadbeepParser.NumbersContext):
-        if self.isInt(ctx.getText()):  # Constant
+        if self.isInt(ctx.number().getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.getText())))
         else:
             return ir.Constant(ir.FloatType(), float(str(ctx.getText())))
@@ -160,7 +149,6 @@ class visitor(sadbeepVisitor):
         self.builder.call(self.printf, [form.bitcast(ir.IntType(8).as_pointer()), exp])
 
     def visitFunction_def(self, ctx:sadbeepParser.Function_defContext):
-        print('Line 167')
         args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
         func_type = ir.FunctionType(ir.IntType(32), [ir.IntType(32) for _ in args])  # Function type (similator to C)
         #                           ^Return type^^  ^Argument types (all i32)^^^^^
@@ -170,7 +158,6 @@ class visitor(sadbeepVisitor):
         self.func = self.table[ctx.name.text]
         self.block = self.func.append_basic_block(name='entry')  # Initialize the first block
         self.builder = ir.IRBuilder(self.block)
-        #################################
 
         # Copy the arguments and populate the id table
         for i in range(len(args)):
@@ -178,7 +165,6 @@ class visitor(sadbeepVisitor):
             self.table[args[i]] = self.builder.alloca(ir.IntType(32), name=args[i])
             self.builder.store(self.func.args[i], self.table[args[i]])
         #################################
-
         return self.visit(ctx.block())  # Build the function body
 
     def visitArgs(self, ctx:sadbeepParser.ArgsContext):
@@ -187,10 +173,10 @@ class visitor(sadbeepVisitor):
 
     def visitCall(self, ctx:sadbeepParser.CallContext) -> ir.CallInstr:
         print('Line 179')
-        if not ctx.name.text in self.table:
+        if ctx.name.text not in self.table:
             raise KeyError(self.file_name + ':' + str(ctx.name.line) + ':' + str(
                 ctx.name.column) + ' function ' + ctx.name.text + ' is not defined')
-        return self.builder.call(self.table[ctx.name.text], self.visit(ctx.exprs()), name='tmp_call')
+        return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
 
     def visitCases(self, ctx:sadbeepParser.CasesContext):
         print('Line 187')
@@ -200,17 +186,26 @@ class visitor(sadbeepVisitor):
         print('Line 191')
         print(node)
 
-    def visitExpression(self, ctx:sadbeepParser.ExpressionContext):
-        print('Line 199')
-        self.visitChildren(ctx)
-
-    def visitFor(self, ctx:sadbeepParser.ForContext):
-        print('Line 203')
-        print(ctx.toStringTree())
-
     def visitForexpr(self, ctx:sadbeepParser.ForexprContext):
-        print('Line 207')
-        print(ctx.toStringTree())
+        self.visitAssign(ctx.init())
+
+        block_while = self.builder.append_basic_block(name='loop')
+        block_next = self.builder.append_basic_block(name='next')
+
+        self.builder.branch(block_while)  # End the current block
+
+        # Switch contex for the loop block
+        with self.builder.goto_block(block_while):
+            zero = ir.Constant(ir.IntType(32), 0)
+            result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp')
+            with self.builder.if_then(result):  # Execute if 0 < cond
+                self.visit(ctx.block())  # Build while body
+                self.visitAssign(ctx.finish())
+                self.builder.branch(block_while)  # Loop
+            self.builder.branch(block_next)  # End loop
+        #################################
+
+        self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
 
     def visitWhile(self, ctx: sadbeepParser.WhileContext):
         print('Line 236')
@@ -231,9 +226,9 @@ class visitor(sadbeepVisitor):
         #################################
 
         self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
-        print('Line 211')
 
-        print(ctx.toStringTree())
+    def visitFinish(self, ctx:sadbeepParser.FinishContext):
+        self.visit(ctx.variable())
 
     def visitIf(self, ctx:sadbeepParser.IfContext):
         print('Line 215')
@@ -250,7 +245,6 @@ class visitor(sadbeepVisitor):
                 self.visit(ctx.then)  # Build then body
 
     def visitParen(self, ctx:sadbeepParser.ParenContext):
-        print(f'Line 223: {ctx.getText()}')
         return self.visit(ctx.expr())
 
     def visitSwitch(self, ctx:sadbeepParser.SwitchContext):
