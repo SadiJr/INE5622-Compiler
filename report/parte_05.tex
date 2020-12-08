@@ -1,0 +1,28 @@
+\section{\normalsize IMPLEMENTAÇÃO DO COMPILADOR}
+	A implementação do compilador se baseou principalmente na linguagem de exemplo da disciplina, sendo o resto da implementação baseada em pura força-bruta.
+	
+	As caractéristicas funcionais do compilador implementado são:
+	
+	\begin{itemize}
+		\item Tipos \textit{int} e \textit{float} implementados corretamente;
+		\item Possibilidade de definir e chamar funções;
+		\item Estruturas \textit{if-then-else}, \textit{while}, \textit{for} e \textit{switch-case} funcionais;
+		\item Operações matemáticas e lógicas funcionais, para ambos os tipos (\textit{int} e \textit{float});
+	\end{itemize}
+	
+	As não funcionais:
+	\begin{itemize}
+		\item O reporte de erros semânticos foi implementado apenas parcialmente, sendo a maioria dos possíveis erros não tratados.;
+		\item Fora os tipos \textit{int} e \textit{float}, nenhum outro tipo foi implementado.
+	\end{itemize}
+	
+	E as limitações e erros da linguagem:
+	\begin{itemize}
+		\item Não é possível executar operações fora de funções;
+		\item Não é possível chamar funções que não possuam parâmetros;
+		\item Não é possível chamar funções dentro de funções\footnote{Exemplo: print(teste(teste2));}, nem passar para funções parâmetros que consistem em operações matemáticas ou lógicas;
+		\item Obrigatóriamente deve haver uma função nomeada \textit{main};
+		\item Não é possível ter duas variáveis com o mesmo nome em funções diferentes.
+		\item Todas as demais funções, fora a \textit{main}, precisam ter \textit{return}.
+		\item Todas as funções precisam estar acima da \textit{main}, do contrário, ocorre o erro de tal função não estar definida.
+	\end{itemize}
