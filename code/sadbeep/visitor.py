@@ -63,21 +63,44 @@ class visitor(sadbeepVisitor):
         except:
             return False
 
-    def visitParse(self, ctx:sadbeepParser.ParseContext):
+    def treatIcmp(self, operator, left, right, first_name, second_name, ctx):
+        if left.type != right.type:
+            raise TypeError(f"{self.file_name} com erros na linha {ctx.getText()}. Tipos diferentes!")
+
+        if left.type == ir.FloatType():
+            result = self.builder.fcmp_ordered(operator, left, right, name=first_name)
+            return self.builder.zext(result, ir.IntType(32),
+                                      name=second_name)  # as result is i1, zero-extend it to i32
+        else:
+            result = self.builder.icmp_signed(operator, left, right, name=first_name)
+            return self.builder.zext(result, ir.IntType(32),
+                                     name=second_name)  # as result is i1, zero-extend it to i32
+
+    def visitParse(self, ctx: sadbeepParser.ParseContext):
         self.visitChildren(ctx)
         self.builder.ret(ir.Constant(ir.IntType(32), 0))
 
-    def visitExp(self, ctx:sadbeepParser.ExpContext):
+    def visitExp(self, ctx: sadbeepParser.ExpContext):
         """Build lowest priority expresions"""
         left = self.visit(ctx.left)
-        if ctx.right: # >, <, >=, <=, ==, !=
+        if ctx.right:  # >, <, >=, <=, ==, !=
             right = self.visit(ctx.right)
-            result = self.builder.icmp_signed(ctx.op.text, left, right, name='tmp_cmp_b')
-            return self.builder.zext(result, ir.IntType(32), name='tmp_cmp') # as result is i1, zero-extend it to i32
-        else: # higher priority expsetion
-             return left
 
-    def visitNeg(self, ctx:sadbeepParser.NegContext):
+            if left.type != right.type:
+                raise TypeError(f"{self.file_name} com erros na linha {ctx.getText()}. Tipos diferentes!")
+
+            if left.type == ir.FloatType():
+                result = self.builder.fcmp_ordered(ctx.op.text, left, right, name='tmp_cmp_comp_float')
+                return self.builder.zext(result, ir.IntType(32),
+                                         name='tmp_cmp_float')  # as result is i1, zero-extend it to i32
+            else:
+                result = self.builder.icmp_signed(ctx.op.text, left, right, name='tmp_cmp_comp_int')
+                return self.builder.zext(result, ir.IntType(32),
+                                         name='tmp_cmp_int')  # as result is i1, zero-extend it to i32
+        else:  # higher priority expsetion
+            return left
+
+    def visitNeg(self, ctx: sadbeepParser.NegContext):
         exp = self.visit(ctx.exp())
         if ctx.getText().startswith('-'):
             if exp.type.__class__ == ir.IntType:
@@ -86,7 +109,7 @@ class visitor(sadbeepVisitor):
                 return self.builder.fsub(ir.Constant(ir.FloatType(), 0), exp, name='neg_float')
         return exp
 
-    def visitAssign(self, ctx:sadbeepParser.AssignContext):
+    def visitAssign(self, ctx: sadbeepParser.AssignContext):
         var = self.visit(ctx.expr())
 
         id = ctx.variable().getText()
@@ -95,25 +118,47 @@ class visitor(sadbeepVisitor):
 
         self.builder.store(var, self.table[id])
 
-    def visitSumm(self, ctx:sadbeepParser.SummContext):
+    def visitSumm(self, ctx: sadbeepParser.SummContext):
         left = self.visit(ctx.left)
 
         if ctx.right:
             right = self.visit(ctx.right)
+
+            if left.type != right.type:
+                raise TypeError(f"{self.file_name} com erros na linha {ctx.getText()}. Tipos diferentes!")
+
+            if left.type == ir.FloatType():
+                add = self.builder.fadd
+                sub = self.builder.fsub
+            else:
+                add = self.builder.add
+                sub = self.builder.sub
+
             if ctx.op.text == '+':
-                return self.builder.add(left, right, name='tmp_add')
+                return add(left, right, name='tmp_add')
             elif ctx.op.text == '-':
-                return self.builder.sub(left, right, name='tmp_sub')
+                return sub(left, right, name='tmp_sub')
         return left
 
-    def visitMult(self, ctx:sadbeepParser.MultContext):
+    def visitMult(self, ctx: sadbeepParser.MultContext):
         left = self.visit(ctx.left)
         if ctx.right:
             right = self.visit(ctx.right)
+
+            if left.type != right.type:
+                raise TypeError(f"{self.file_name} com erros na linha {ctx.getText()}. Tipos diferentes!")
+
+            if left.type == ir.FloatType():
+                mul = self.builder.fmul
+                div = self.builder.fdiv
+            else:
+                mul = self.builder.mul
+                div = self.builder.sdiv
+
             if ctx.op.text == '*':
-                return self.builder.mul(left, right, name='tmp_mul')
+                return mul(left, right, name='tmp_mul')
             elif ctx.op.text == '/':
-                return self.builder.sdiv(left, right, name='tmp_div')
+                return div(left, right, name='tmp_div')
         return left
 
     def visitAtom(self, ctx: sadbeepParser.AtomContext):
@@ -130,25 +175,25 @@ class visitor(sadbeepVisitor):
         else:
             return ir.Constant(ir.FloatType(), float(str(ctx.number().getText())))
 
-    def visitNumbers(self, ctx:sadbeepParser.NumbersContext):
+    def visitNumbers(self, ctx: sadbeepParser.NumbersContext):
         if self.isInt(ctx.number().getText()):  # Constant
             return ir.Constant(ir.IntType(32), int(str(ctx.getText())))
         else:
             return ir.Constant(ir.FloatType(), float(str(ctx.getText())))
 
-    def visitReturn(self, ctx:sadbeepParser.ReturnContext):
+    def visitReturn(self, ctx: sadbeepParser.ReturnContext):
         self.builder.ret(self.visit(ctx.expr()))
 
-    def visitPrint(self, ctx:sadbeepParser.PrintContext):
+    def visitPrint(self, ctx: sadbeepParser.PrintContext):
         exp = self.visit(ctx.expr())
 
         form, exp = (self.form_float,
                      self.builder.fpext(exp, ir.DoubleType(), name='double_cast')) if exp.type == ir.FloatType() else (
-        self.form_int, exp)
+            self.form_int, exp)
 
         self.builder.call(self.printf, [form.bitcast(ir.IntType(8).as_pointer()), exp])
 
-    def visitFunction_def(self, ctx:sadbeepParser.Function_defContext):
+    def visitFunction_def(self, ctx: sadbeepParser.Function_defContext):
         args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
         func_type = ir.FunctionType(ir.IntType(32), [ir.IntType(32) for _ in args])  # Function type (similator to C)
         #                           ^Return type^^  ^Argument types (all i32)^^^^^
@@ -167,26 +212,40 @@ class visitor(sadbeepVisitor):
         #################################
         return self.visit(ctx.block())  # Build the function body
 
-    def visitArgs(self, ctx:sadbeepParser.ArgsContext):
-        print('Line 171')
+    def visitArgs(self, ctx: sadbeepParser.ArgsContext):
         return [str(x) for x in ctx.ID()]
 
-    def visitCall(self, ctx:sadbeepParser.CallContext) -> ir.CallInstr:
-        print('Line 179')
+    def visitCall(self, ctx: sadbeepParser.CallContext) -> ir.CallInstr:
         if ctx.name.text not in self.table:
             raise KeyError(self.file_name + ':' + str(ctx.name.line) + ':' + str(
                 ctx.name.column) + ' function ' + ctx.name.text + ' is not defined')
         return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
 
-    def visitCases(self, ctx:sadbeepParser.CasesContext):
-        print('Line 187')
-        print(ctx.toStringTree())
+    def visitCases(self, ctx: sadbeepParser.CasesContext):
+        block_switch = self.builder.append_basic_block(name='switch_' + ctx.expr(0).getText())
+        block_next = self.builder.append_basic_block(name='next_switch')
+        self.builder.branch(block_switch)
+
+        with self.builder.goto_block(block_switch):
+            zero = self.visit(ctx.parentCtx.expr().exp())
+
+            res = self.treatIcmp('==', zero, self.visit(ctx.expr(0)), 'tmp_switch_cmp', 'tmp_cmp_switch', ctx)
+
+            if self.visit(ctx.expr(0)).type == ir.FloatType():
+                result = self.builder.icmp_signed('<', ir.Constant(ir.IntType(32), 0), res, name='temp_if_cmp_float')
+            else:
+                result = self.builder.icmp_signed('<', ir.Constant(ir.IntType(32), 0), res, name='temp_if_cmp_int')
+            with self.builder.if_then(result):  # Execute if 0 < cond
+                self.visit(ctx.expr(1))
+            self.builder.branch(block_next)
+            #################################
+        self.builder = ir.IRBuilder(block_next)
 
     def visitErrorNode(self, node):
         print('Line 191')
         print(node)
 
-    def visitForexpr(self, ctx:sadbeepParser.ForexprContext):
+    def visitForexpr(self, ctx: sadbeepParser.ForexprContext):
         self.visitAssign(ctx.init())
 
         block_while = self.builder.append_basic_block(name='loop')
@@ -196,8 +255,16 @@ class visitor(sadbeepVisitor):
 
         # Switch contex for the loop block
         with self.builder.goto_block(block_while):
-            zero = ir.Constant(ir.IntType(32), 0)
-            result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp')
+            if self.visit(ctx.expr()).type != self.visit(ctx.cond).type:
+                raise TypeError(f"{self.file_name} com erros na linha {ctx.getText()}. Tipos diferentes!")
+
+            if self.visit(ctx.expr()).type == ir.FloatType:
+                zero = ir.Constant(ir.FloatType(), 0)
+                result = self.builder.fcmp_unordered('<', zero, self.visit(ctx.cond), name='tmp_w_cmp_float')
+            else:
+                zero = ir.Constant(ir.IntType(32), 0)
+                result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp_float')
+
             with self.builder.if_then(result):  # Execute if 0 < cond
                 self.visit(ctx.block())  # Build while body
                 self.visitAssign(ctx.finish())
@@ -208,8 +275,6 @@ class visitor(sadbeepVisitor):
         self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
 
     def visitWhile(self, ctx: sadbeepParser.WhileContext):
-        print('Line 236')
-        """Build while statement"""
         block_while = self.builder.append_basic_block(name='loop')
         block_next = self.builder.append_basic_block(name='next')
 
@@ -227,11 +292,10 @@ class visitor(sadbeepVisitor):
 
         self.builder = ir.IRBuilder(block_next)  # Set the builder for the next block out of the loop
 
-    def visitFinish(self, ctx:sadbeepParser.FinishContext):
+    def visitFinish(self, ctx: sadbeepParser.FinishContext):
         self.visit(ctx.variable())
 
-    def visitIf(self, ctx:sadbeepParser.IfContext):
-        print('Line 215')
+    def visitIf(self, ctx: sadbeepParser.IfContext):
         zero = ir.Constant(ir.IntType(32), 0)
         result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='temp_if_cmp')
         if ctx.getText().__contains__('else'):  # if-then-else
@@ -244,13 +308,15 @@ class visitor(sadbeepVisitor):
             with self.builder.if_then(result):
                 self.visit(ctx.then)  # Build then body
 
-    def visitParen(self, ctx:sadbeepParser.ParenContext):
+    def visitParen(self, ctx: sadbeepParser.ParenContext):
         return self.visit(ctx.expr())
 
-    def visitSwitch(self, ctx:sadbeepParser.SwitchContext):
-        print('Line 227')
-        print(ctx.toStringTree())
+    def visitSwitch(self, ctx: sadbeepParser.SwitchContext):
+        self.visit(ctx.expr())
 
-    def visitText(self, ctx:sadbeepParser.TextContext):
+        for _ in ctx.cases():
+            self.visit(_)
+
+    def visitText(self, ctx: sadbeepParser.TextContext):
         print('Line 231')
         print(ctx.toStringTree())
