@@ -32,7 +32,7 @@ def main():
     parser_args.add_argument('input', type=str, help='source code')
     parser_args.add_argument('-l', metavar='*.ll', type=str, help='llvm output')
     parser_args.add_argument('-s', metavar='*.s', type=str, help='native assembly output')
-    parser_args.add_argument('-o', metavar='', type=str, default='a.out', help='binary output')
+    parser_args.add_argument('-o', metavar='', type=str, default='a.out', help='binary output, default a.out')
     parser_args.add_argument('--clang', action='store_const', const=True, help='use clang instead of gcc to assemble')
 
     args = parser_args.parse_args()
