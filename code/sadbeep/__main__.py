@@ -46,10 +46,27 @@ def main():
 
     tree = parser.parse()  # Get AST
 
+    if parser.getNumberOfSyntaxErrors() > 0:
+        exit(-1)
+
     # Transverse AST to generate llvm
     vis = visitor(args.input)
-    vis.visitParse(tree)
+    try:
+        vis.visitParse(tree)
+    except AttributeError as msg:
+        print(f"Erro no arquivo {input_stream.fileName}, não é possível executar operações ou declarar variáveis fora "
+              f"de funções!")
+        exit(-1)
     #################################
+
+    constain_main = False;
+    for i in range(len(vis.module.functions)):
+        if vis.module.functions[i].name == 'main':
+            constain_main = True
+
+    if not constain_main:
+        print(f"O arquivo {input_stream.fileName} não contém a declaração de uma função main!")
+        exit(-1)
 
     # Output llvm
     if args.l:

@@ -1,6 +1,5 @@
 from llvmlite import binding
 from llvmlite import ir
-from typing import List
 
 from .sadbeep.sadbeepParser import sadbeepParser
 from .sadbeep.sadbeepVisitor import sadbeepVisitor
@@ -116,7 +115,11 @@ class visitor(sadbeepVisitor):
         if id not in self.table:
             self.table[id] = self.builder.alloca(var.type, name=id)
 
-        self.builder.store(var, self.table[id])
+        if self.table[id].type.pointee == var.type:
+            self.builder.store(var, self.table[id])
+        else:
+            raise KeyError(f"{self.file_name}:{str(ctx.start.line)}:{str(ctx.start.column)} Tentando alocar um valor para"
+                           f" uma variável de tipo diferente.")
 
     def visitSumm(self, ctx: sadbeepParser.SummContext):
         left = self.visit(ctx.left)
@@ -194,6 +197,8 @@ class visitor(sadbeepVisitor):
         self.builder.call(self.printf, [form.bitcast(ir.IntType(8).as_pointer()), exp])
 
     def visitFunction_def(self, ctx: sadbeepParser.Function_defContext):
+        if not ctx.getText().__contains__('return'):
+            raise KeyError(f"{self.file_name}{str(ctx.name.line)}: Função {ctx.name.text} não contém instrução de return!")
         args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
         func_type = ir.FunctionType(ir.IntType(32), [ir.IntType(32) for _ in args])  # Function type (similator to C)
         #                           ^Return type^^  ^Argument types (all i32)^^^^^
@@ -217,11 +222,16 @@ class visitor(sadbeepVisitor):
 
     def visitCall(self, ctx: sadbeepParser.CallContext) -> ir.CallInstr:
         if ctx.name.text not in self.table:
-            raise KeyError(self.file_name + ':' + str(ctx.name.line) + ':' + str(
-                ctx.name.column) + ' function ' + ctx.name.text + ' is not defined')
-        if ctx.exprs() == None:
+            raise KeyError(f"{self.file_name}:{str(ctx.name.line)}:{str(ctx.name.column)} Função {ctx.name.text}"
+                           f" não definida, tenha certeza de definir a função acima do ponto do código onde a "
+                           f"mesma é invocada.")
+        if ctx.exprs() is None:
             return self.builder.call(self.table[ctx.name.text], [], name='tmp_call')
         else:
+            if len(self.table[ctx.name.text].args) != len([self.visit(ctx.exprs())]):
+                raise KeyError(f"{self.file_name}:{str(ctx.name.line)}:{str(ctx.name.column)} Função {ctx.name.text}"
+                           f" invocada com parâmetros errados. Esperando {len(self.table[ctx.name.text].args)} parâmetros"
+                           f" mas sendo invocada com {len([self.visit(ctx.exprs())])} parâmetros!")
             return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
 
     def visitCases(self, ctx: sadbeepParser.CasesContext):
