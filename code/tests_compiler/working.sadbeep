@@ -47,7 +47,7 @@ func floatTest() {
     }
 
     c = 10;
-    while b {
+    while c {
         c = c - 1;
         numSec = numSec + 0.1;
     }
