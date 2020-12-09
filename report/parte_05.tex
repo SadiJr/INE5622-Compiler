@@ -1,5 +1,5 @@
 \section{\normalsize IMPLEMENTAÇÃO DO COMPILADOR}
-	A implementação do compilador se baseou principalmente na linguagem de exemplo da disciplina, sendo o resto da implementação baseada em pura força-bruta.
+	A implementação do compilador se baseou principalmente na linguagem de exemplo da disciplina, sendo o resto da implementação baseada em pura força-bruta\footnote{A implementação de todas as características não contempladas na linguagem de exemplo da disciplina foi por tentativa e erro.}.
 	
 	\subsection{\normalsize CARACTERÍSTICAS FUNCIONAIS DO COMPILADOR}
 	\begin{itemize}
@@ -13,7 +13,7 @@
 	
 	\subsection{\normalsize CARACTERÍSTICAS NÃO-FUNCIONAIS}
 	\begin{itemize}
-		\item O reporte de erros semânticos foi implementado apenas parcialmente, sendo a maioria dos possíveis erros não tratados.;
+		\item O reporte de erros semânticos foi implementado apenas parcialmente, podendo haver erros ainda não detectados e/ou tratados.
 		\item Fora os tipos \textit{int} e \textit{float}, nenhum outro tipo foi implementado. Além disso, somente as operações básicas (adição, subtração, divisão e multiplicação) foram implementadas, mesmo que a definição da linguagem suporte a operação de módulo.
 	\end{itemize}
 	
@@ -22,13 +22,13 @@
 		\item Não é possível executar operações ou declarar variáveis fora de funções;
 		\item Não é possível chamar funções dentro de funções\footnote{Exemplo: print(teste(teste2));}, nem passar para funções parâmetros que consistem em operações matemáticas ou lógicas;
 		\item Obrigatóriamente deve haver uma função nomeada \textit{main};
-		\item Não é possível ter duas variáveis com o mesmo nome em funções diferentes, desde que uma dessas funções seja a \textit{main}.
-		\item Todas as funções precisam ter \textit{return}.
-		\item Para uma função poder chamar a outra, a função a ser chamada precisa ser definida antes.
-		\item Não é possível passar parâmetros do tipo \textit{float} para as funções.
+		\item Não é possível ter duas variáveis com o mesmo nome em funções diferentes, desde que uma dessas funções seja a \textit{main};
+		\item Todas as funções precisam ter \textit{return};
+		\item Para uma função poder chamar a outra, a função a ser chamada precisa ser definida antes;
+		\item Não é possível passar parâmetros do tipo \textit{float} para as funções;
+		\item Também não é possível fazer retornos de funções do tipo \textit{float};
+		\item Não é possível declarar uma variável de um tipo e depois a alterar para outro tipo.
 	\end{itemize}
 	
-	\subsection{\normalsize ERROR CONHECIDOS MAIS NÃO TRATADOS}
-	\begin{itemize}
-		\item Não é verificado se as funções possuem \textit{return}. Ao invés disso, um erro genérico, que em nada ajuda na detecção do erro, é lançado.
-	\end{itemize}
+	\subsection{\normalsize NOTAS DO REDATOR}
+	Todo o progresso de implementação do trabalho, assim como a contribuição e participação, em termos de código escrito e \textit{commits}, pode ser visualizado no seguinte repositório: \url{https://github.com/SadiJr/INE5622-Compiler}
