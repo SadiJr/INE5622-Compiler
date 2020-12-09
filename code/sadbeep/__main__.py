@@ -46,8 +46,8 @@ def main():
 
     tree = parser.parse()  # Get AST
 
-    if parser.getNumberOfSyntaxErrors() > 0:
-        exit(-1)
+    #if parser.getNumberOfSyntaxErrors() > 0:
+    #    exit(-1)
 
     # Transverse AST to generate llvm
     vis = visitor(args.input)
