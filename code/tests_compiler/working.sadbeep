@@ -38,7 +38,8 @@ func intTest(numPrim) {
     return 0;
 }
 
-func floatTest(numSec) {
+func floatTest() {
+    numSec = 3.1;
     print(numSec);
 
     for (numSec = 0.1; numSec < 1.6; numSec = numSec + 0.1) {
@@ -77,8 +78,9 @@ func floatTest(numSec) {
 
 func main() {
     a = 11;
-    testando(a);
+    teste(a);
 
-    floatTest(3.1);
+    floatTest();
     intTest(a);
+    return 0;
 }
