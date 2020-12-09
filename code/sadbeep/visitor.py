@@ -76,9 +76,9 @@ class visitor(sadbeepVisitor):
             return self.builder.zext(result, ir.IntType(32),
                                      name=second_name)  # as result is i1, zero-extend it to i32
 
-    def visitParse(self, ctx: sadbeepParser.ParseContext):
-        self.visitChildren(ctx)
-        self.builder.ret(ir.Constant(ir.IntType(32), 0))
+    #def visitParse(self, ctx: sadbeepParser.ParseContext):
+    #    self.visitChildren(ctx)
+    #    self.builder.ret(ir.Constant(ir.IntType(32), 0))
 
     def visitExp(self, ctx: sadbeepParser.ExpContext):
         """Build lowest priority expresions"""
@@ -219,7 +219,10 @@ class visitor(sadbeepVisitor):
         if ctx.name.text not in self.table:
             raise KeyError(self.file_name + ':' + str(ctx.name.line) + ':' + str(
                 ctx.name.column) + ' function ' + ctx.name.text + ' is not defined')
-        return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
+        if ctx.exprs() == None:
+            return self.builder.call(self.table[ctx.name.text], [], name='tmp_call')
+        else:
+            return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
 
     def visitCases(self, ctx: sadbeepParser.CasesContext):
         block_switch = self.builder.append_basic_block(name='switch_' + ctx.expr(0).getText())

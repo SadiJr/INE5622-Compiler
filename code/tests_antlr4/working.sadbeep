@@ -1,0 +1,50 @@
+a = 1;
+
+/*Um comentário
+Outro comentário
+Mais um comentário*/
+
+func hellowordl() {
+    print("Hello Wordl!");
+    
+    a = -2;
+    
+    for(y = 0; y < 42; y = y + 1){                  //Último comentário
+        string = "teste de string";                 
+        int = 1;
+        float = 0.123;
+    }
+
+    test(a);
+
+    c = ((1 + 2) - 3) * 9 / 4;
+}
+
+func test(param) {
+    if (a > 3){
+        b = 3*(1+2);
+    }
+}
+
+while (testeWhile < 100){
+    p = -1+1*8;
+    q = (1+1)*(-8);
+    mod = 10%2;
+}
+
+switch testeSwitch{
+    case 1: 
+        t = 0.123 + 1.234;
+    case 2:
+        if (a == b) && (b == c){
+            a = c;
+        }else{
+            a = -c;
+        }
+    case 3:
+        l = true;
+        j = false;
+        break;
+}
+
+hellowordl();
