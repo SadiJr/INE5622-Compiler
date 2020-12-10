@@ -33,7 +33,29 @@
 						init: variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr;\\
 						finish: variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr;
 				\end{itemize}
+			\end{itemize}
+		
+		\item Regras \textit{args} e \textit{function\_def}:\\
+			Ambas as regras foram alteradas para poderem suportar tipagem sobre o retorno da função e os parâmetros recebidos.
+			
+			Antes era assim:			
+			\begin{itemize}
+				\item
 				
+				function\_def : \textquotesingle func\textquotesingle \vspace{0.1cm} name=ID \textquotesingle(\textquotesingle \vspace{0.1cm} args? \textquotesingle)\textquotesingle \vspace{0.1cm} block;
+
+				args : ID (\textquotesingle ,\textquotesingle \vspace{0.1cm} ID)*;
+			\end{itemize}
+			
+			E agora a mesma é assim:
+			\begin{itemize}
+				\item 
+				
+				function\_def : \textquotesingle func\textquotesingle \vspace{0.1cm} name=ID \textquotesingle(\textquotesingle \vspace{0.1cm} args? \textquotesingle)\textquotesingle \textquotesingle :\textquotesingle \vspace{0.1cm} precision \vspace{0.1cm} block;
+
+				args : ID \textquotesingle :\textquotesingle \vspace{0.1cm} precision (\textquotesingle ,\textquotesingle \vspace{0.1cm} ID \textquotesingle :\textquotesingle \vspace{0.1cm} precision)*;
+
+				precision : \textquotesingle int\textquotesingle \vspace{0.1cm} | \textquotesingle float\textquotesingle ;
 			\end{itemize}
 	\end{itemize}
 	
