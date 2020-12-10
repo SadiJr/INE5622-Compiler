@@ -23,9 +23,11 @@ number: NUMBER;
 
 variable: ID;
 
-function_def : 'func' name=ID '(' args? ')' block;
+function_def : 'func' name=ID '(' args? ')' ':' precision block;
 
-args : ID (',' ID)*;
+args : ID ':' precision (',' ID ':' precision)*;
+
+precision : 'int' | 'float';
 
 cases: 'case' expr ':' expr 'break;'?;
 
