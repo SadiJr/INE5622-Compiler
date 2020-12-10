@@ -211,7 +211,37 @@ class visitor(sadbeepVisitor):
             raise TypeError(
                 f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
 
+    def defineFunctionType(self, ctx):
+        loop = True
+        lastParent = ctx.parentCtx
+        stringType = None
+
+        while loop:
+            try:
+                stringType = lastParent.precision().getText()
+            except:
+                lastParent = lastParent.parentCtx
+            if lastParent is None or stringType is not None:
+                loop = False
+
+        if stringType == 'int':
+            return ir.IntType(32)
+        elif stringType == 'float':
+            return ir.FloatType()
+        else:
+            raise TypeError(
+                f"{self.file_name}{str(ctx.start.line)}:{ctx.start.column} Um erro inesperado ocorreu! Xinge a mão do programador!")
+
     def visitReturn(self, ctx: sadbeepParser.ReturnContext):
+        if self.visit(ctx.expr()) is None:
+            raise KeyError(f"{self.file_name}{str(ctx.start.line)}:{ctx.start.column} Retorno da função "
+                           f"sem valor definido!")
+        returnType = self.defineFunctionType(ctx)
+
+        if returnType != self.visit(ctx.expr()).type:
+            raise TypeError(
+                f"{self.file_name}{str(ctx.start.line)}:{ctx.start.column} Retorno da função {ctx.start.text} "
+                f"diferente do returno definido no cabeçalho da função!")
         self.builder.ret(self.visit(ctx.expr()))
 
     def visitPrint(self, ctx: sadbeepParser.PrintContext):
@@ -226,13 +256,45 @@ class visitor(sadbeepVisitor):
             raise TypeError(
                 f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
 
+    def createArgType(self, arg, line, column, text):
+        if arg == 'int':
+            return ir.IntType(32)
+        elif arg == 'float':
+            return ir.FloatType()
+        else:
+            raise TypeError(
+                f"{self.file_name}{str(line)}:{column} Tipo de váriável da função {text} não válido!")
+
+    def allocaFunctionType(self, stringType, line, column, text, args):
+        index = 1
+        types = []
+
+        while index < len(args):
+            types.append(self.createArgType(args[index], line, column, text))
+            index += 2
+
+        if stringType == 'int':
+            return ir.FunctionType(ir.IntType(32), types)
+        elif stringType == 'float':
+            return ir.FunctionType(ir.FloatType(), types)
+        else:
+            raise TypeError(
+                f"{self.file_name}{str(line)}:{column} Retorno da função {text} não válido! Os únicos retornos válidos"
+                f" são int e float!")
+
     def visitFunction_def(self, ctx: sadbeepParser.Function_defContext):
+        args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
+
+        if ctx.precision() is None:
+            raise KeyError(
+                f"{self.file_name}{str(ctx.name.line)}:{ctx.name.column} Função {ctx.name.text} não contém "
+                f"instrução de tipos (no retorno ou nas variáveis)!")
+
         if not ctx.getText().__contains__('return'):
             raise KeyError(
-                f"{self.file_name}{str(ctx.name.line)}: Função {ctx.name.text} não contém instrução de return!")
-        args = self.visit(ctx.args()) if ctx.args() else []  # List or arguments
-        func_type = ir.FunctionType(ir.IntType(32), [ir.IntType(32) for _ in args])  # Function type (similator to C)
-        #                           ^Return type^^  ^Argument types (all i32)^^^^^
+                f"{self.file_name}{str(ctx.name.line)}:{ctx.name.column} Função {ctx.name.text} não contém instrução de return!")
+        func_type = self.allocaFunctionType(ctx.precision().getText(), ctx.name.line, ctx.name.column, ctx.name.text,
+                                            args)
 
         # Add function to table and set the builder
         self.table[ctx.name.text] = ir.Function(self.module, func_type, name=ctx.name.text)
@@ -241,28 +303,50 @@ class visitor(sadbeepVisitor):
         self.builder = ir.IRBuilder(self.block)
 
         # Copy the arguments and populate the id table
-        for i in range(len(args)):
-            self.func.args[i].name = args[i]
-            self.table[args[i]] = self.builder.alloca(ir.IntType(32), name=args[i])
-            self.builder.store(self.func.args[i], self.table[args[i]])
+        i = 0
+        j = 0
+        while i < len(args):
+            self.func.args[j].name = args[i]
+            self.table[args[i]] = self.builder.alloca(self.createArgType(args[i + 1], ctx.name.line, ctx.name.column,
+                                                                         ctx.name.text), name=args[i])
+            self.builder.store(self.func.args[j], self.table[args[i]])
+            j += 1
+            i = i + 2
         #################################
         return self.visit(ctx.block())  # Build the function body
 
     def visitArgs(self, ctx: sadbeepParser.ArgsContext):
-        return [str(x) for x in ctx.ID()]
+        try:
+            args = []
+            for x in range(len(ctx.ID())):
+                args.append(str(ctx.ID(x)))
+                args.append(ctx.precision(x).getText())
+            return args
+        except:
+            raise TypeError(f"{self.file_name}{str(ctx.start.line)}: Função {ctx.start.text} não contém instrução "
+                            f"de tipos de variáveis!")
 
     def visitCall(self, ctx: sadbeepParser.CallContext) -> ir.CallInstr:
         if ctx.name.text not in self.table:
             raise KeyError(f"{self.file_name}:{str(ctx.name.line)}:{str(ctx.name.column)} Função {ctx.name.text}"
                            f" não definida, tenha certeza de definir a função acima do ponto do código onde a "
                            f"mesma é invocada.")
+
+        if (ctx.exprs() is None and len(self.table[ctx.name.text].args) > 0) or len(
+                self.table[ctx.name.text].args) != len(ctx.exprs().getText().split(',')):
+            if ctx.exprs() is None:
+                parameters = 0
+            else:
+                parameters = len(ctx.exprs().getText().split(','))
+
+            raise KeyError(f"{self.file_name}:{str(ctx.start.line)}:{str(ctx.start.column)} Função {ctx.start.text}"
+                           f" invocada com parâmetros errados. Esperando {len(self.table[ctx.name.text].args)} parâmetros"
+                           f" mas sendo invocada com {parameters} parâmetros!")
+
         if ctx.exprs() is None:
             return self.builder.call(self.table[ctx.name.text], [], name='tmp_call')
-        elif len(self.table[ctx.name.text].args) != len([self.visit(ctx.exprs())]):
-            raise KeyError(f"{self.file_name}:{str(ctx.name.line)}:{str(ctx.name.column)} Função {ctx.name.text}"
-                           f" invocada com parâmetros errados. Esperando {len(self.table[ctx.name.text].args)} parâmetros"
-                           f" mas sendo invocada com {len([self.visit(ctx.exprs())])} parâmetros!")
-        return self.builder.call(self.table[ctx.name.text], [self.visit(ctx.exprs())], name='tmp_call')
+
+        return self.builder.call(self.table[ctx.name.text], [self.visit(x) for x in ctx.exprs().expr()], name='tmp_call')
 
     def visitCases(self, ctx: sadbeepParser.CasesContext):
         block_switch = self.builder.append_basic_block(name='switch_' + ctx.expr(0).getText())
@@ -274,12 +358,13 @@ class visitor(sadbeepVisitor):
 
             res = self.treatIcmp('==', zero, self.visit(ctx.expr(0)), 'tmp_switch_cmp', 'tmp_cmp_switch', ctx)
 
-            if self.visit(ctx.expr(0)).type == ir.FloatType():
+            if self.visit(ctx.expr(0)).type.__class__ == ir.FloatType:
                 result = self.builder.icmp_signed('<', ir.Constant(ir.IntType(32), 0), res, name='temp_if_cmp_float')
-            elif self.visit(ctx.expr(0)).type == ir.IntType:
+            elif self.visit(ctx.expr(0)).type.__class__ == ir.IntType:
                 result = self.builder.icmp_signed('<', ir.Constant(ir.IntType(32), 0), res, name='temp_if_cmp_int')
             else:
-                raise TypeError(f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
+                raise TypeError(
+                    f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
             with self.builder.if_then(result):  # Execute if 0 < cond
                 self.visit(ctx.expr(1))
             self.builder.branch(block_next)
@@ -300,14 +385,15 @@ class visitor(sadbeepVisitor):
                 raise TypeError(f"{self.file_name} com erros na linha {ctx.start.line}:{ctx.start.column}"
                                 f" ({ctx.getText()}). Tipos diferentes!")
 
-            if self.visit(ctx.expr()).type == ir.FloatType:
+            if self.visit(ctx.expr()).type.__class__ == ir.FloatType:
                 zero = ir.Constant(ir.FloatType(), 0)
                 result = self.builder.fcmp_unordered('<', zero, self.visit(ctx.cond), name='tmp_w_cmp_float')
-            elif self.visit(ctx.expr()).type == ir.IntType:
+            elif self.visit(ctx.expr()).type.__class__ == ir.IntType:
                 zero = ir.Constant(ir.IntType(32), 0)
                 result = self.builder.icmp_signed('<', zero, self.visit(ctx.cond), name='tmp_w_cmp_float')
             else:
-                raise TypeError(f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
+                raise TypeError(
+                    f"{self.file_name}:{ctx.start.line}:{ctx.start.column} - Tipo não reconhecido e/ou tratado!")
 
             with self.builder.if_then(result):  # Execute if 0 < cond
                 self.visit(ctx.block())  # Build while body
@@ -368,7 +454,3 @@ class visitor(sadbeepVisitor):
 
         for _ in ctx.cases():
             self.visit(_)
-
-    def visitText(self, ctx: sadbeepParser.TextContext):
-        print('Line 231')
-        print(ctx.toStringTree())
