@@ -1,4 +1,4 @@
-func fib(n) {
+func fib(n: int): int {
     if n == 1 {
         return 1;
     }
@@ -6,7 +6,7 @@ func fib(n) {
     return n + temp;
 }
 
-func main() {
+func main(): int {
     b = 1;
     while (b < 10) {
         result = fib(b);

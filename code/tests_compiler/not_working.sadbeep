@@ -24,27 +24,27 @@ func tst() {
         print(1);
 }
 
-funcc malFormada() {
+funcc malFormada(): void {
     print(100);
 }
 }
 
 
 //Erros semânticos
-func semReturn() {
+func semReturn(): int {
     print(100);
 }
 
-func semParam() {
+func semTipo() {
     return 0;
 }
 
 //Remover essa função ou renomeá-la para algo diferente de main também causa erro semântico
-func main() {
+func main(): int {
     a = 1;
     a = a + 1.1;
     semReturn();
 
-    semParam(a);
+    semTipo(a);
     return 0;
 }

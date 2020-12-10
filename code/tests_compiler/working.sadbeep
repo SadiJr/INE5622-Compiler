@@ -1,9 +1,9 @@
-func teste(num) {
+func teste(num: int): int {
     print(num);
     return 0;
 }
 
-func intTest(numPrim) {
+func intTest(numPrim: int): int {
     print(numPrim);
 
     for (numPrim = 1; numPrim < 10; numPrim = numPrim + 1) {
@@ -38,22 +38,21 @@ func intTest(numPrim) {
     return 0;
 }
 
-func floatTest() {
-    numSec = 3.1;
+func floatTest(numSec: float): float {
     print(numSec);
 
     for (numSec = 0.1; numSec < 1.6; numSec = numSec + 0.1) {
         print(numSec);
     }
 
-    c = 10;
-    while c {
-        c = c - 1;
+    c = 10.9;
+    while c > 10.0 {
+        c = c - 0.1;
         numSec = numSec + 0.1;
     }
     print(numSec);
 
-    if numSec == 2.6 {
+    if numSec >= 2.6 {
         numSec = numSec * 2.1;
     } else {
         numSec = numSec / 1.1;
@@ -73,14 +72,14 @@ func floatTest() {
             break;
     }
 
-    return 0;
+    return numSec;
 }
 
-func main() {
+func main(): int {
     a = 11;
     teste(a);
 
-    floatTest();
+    floatTest(3.1);
     intTest(a);
     return 0;
 }
