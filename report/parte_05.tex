@@ -19,17 +19,18 @@
 	
 	\subsection{\normalsize LIMITAÇÕES E ERROS DO COMPILADOR}
 	\begin{itemize}
+		\item Alguns erros sintáticos podem ser falsos positivos, porém, esses erros não interrompem o processo de compilação, apenas emitem uma mensagem de erro.
 		\item Não é possível executar operações ou declarar variáveis fora de funções;
 		\item Não é possível chamar funções dentro de funções\footnote{Exemplo: print(teste(teste2));}, nem passar para funções parâmetros que consistem em operações matemáticas ou lógicas;
-		\item Obrigatóriamente deve haver uma função nomeada \textit{main};
+		\item Obrigatoriamente deve haver uma função nomeada \textit{main};
 		\item Não é possível ter duas variáveis com o mesmo nome em funções diferentes, desde que uma dessas funções seja a \textit{main};
 		\item Todas as funções precisam ter \textit{return};
 		\item Para uma função poder chamar a outra, a função a ser chamada precisa ser definida antes;
-		\item Não é possível declarar uma variável de um tipo e depois a alterar para outro tipo.
+		\item Não é possível declarar uma variável de um tipo e depois a alterar para outro tipo;
 		\item Operações de \textit{loop} usando variáveis do tipo \textit{float}, especialmente o \textit{while}, podem apresentar comportamentos estranhos, embora o resultado final apresentado não esteja totalmente errado.
 	\end{itemize}
 	
 	\subsection{\normalsize NOTAS DO REDATOR}
-	Todo o progresso de implementação do trabalho, assim como a contribuição e participação, em termos de código escrito e \textit{commits}, pode ser visualizado no seguinte repositório: \url{https://github.com/SadiJr/INE5622-Compiler}
+	Todo o progresso de implementação do trabalho, assim como a contribuição e participação, em termos de código escrito e \textit{commits}, pode ser visualizado no seguinte repositório: \url{https://github.com/SadiJr/INE5622-Compiler}.
 
 	Importante frisar que, a partir da postagem desse trabalho, tal repositório, antes privado, irá ter sua visibilidade alterada para público, o que pode, infelizmente, implicar em cópia por colegas desesperados.
