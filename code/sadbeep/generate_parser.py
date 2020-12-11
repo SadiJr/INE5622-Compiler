@@ -1,6 +1,6 @@
 import requests
-import tempfile
 import subprocess
+import tempfile
 
 
 def generate_parser(g4_file):

@@ -1,0 +1,17 @@
+func fib(n: int): int {
+    if n == 1 {
+        return 1;
+    }
+    temp = fib(n - 1);
+    return n + temp;
+}
+
+func main(): int {
+    b = 1;
+    while (b < 10) {
+        result = fib(b);
+        print(result);
+        b = b + 1;
+    }
+    return 0;
+}

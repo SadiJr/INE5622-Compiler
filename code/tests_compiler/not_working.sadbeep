@@ -1,0 +1,50 @@
+//Erros sintáticos, o processo de compilação é abortado no primeiro erro
+//Então para testar cada erro, é necessário editar esse arquivo.
+
+func tst() {
+    a = 1;
+
+    for (i = 0 i < 20 i = i + 1) {
+        print(i);
+    }
+
+    swithc a
+        case 1 print(1);
+        case 2:
+            print(2);
+            breaak;
+
+    while a
+        print(a);
+        a = a - 1;
+
+    if a == 0
+        print(0);
+    else
+        print(1);
+}
+
+funcc malFormada(): void {
+    print(100);
+}
+}
+
+
+//Erros semânticos
+func semReturn(): int {
+    print(100);
+}
+
+func semTipo() {
+    return 0;
+}
+
+//Remover essa função ou renomeá-la para algo diferente de main também causa erro semântico
+func main(): int {
+    a = 1;
+    a = a + 1.1;
+    semReturn();
+
+    semTipo(a);
+    return 0;
+}

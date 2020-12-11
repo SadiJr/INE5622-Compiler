@@ -2,21 +2,19 @@ grammar sadbeep;
 
 parse : expr* EOF;
 
-expr : variable '=' expr ';'       
-     | number                       
-     | function_def                 
-     | expr expr                    
-     | '(' expr ')'  
-     | STRING
-     | 'return' expr ';'
-     | ID
-     | call
-     | expr operators ';'
-     | '-'? exp
-     | 'if' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* then=block ('else' otherwise=block)?
-     | 'while' cond=expr ('&&' cond=expr)* | ('||' cond=expr)* block 
-     | 'for' forexpr block
-     | 'switch' expr? '{' (cases)+ '}'                         
+expr : variable '=' expr ';'                                                                            # assign
+     | 'print' expr ';'                                                                                 # print
+     | number                                                                                           # numbers
+     | function_def                                                                                     # func
+     | '(' expr ')'                                                                                     # paren
+     | STRING                                                                                           # text
+     | 'return' expr ';'                                                                                # return
+     | call                                                                                             # op
+     | LESS? exp                                                                                        # neg
+     | 'if' cond=expr ('&&' cond=expr | '||' cond=expr)* then=block ('else' otherwise=block)?           # if
+     | 'while' cond=expr ('&&' cond=expr | '||' cond=expr)* block                                       # while
+     | 'for' forexpr                                                                                    # for
+     | 'switch' expr? '{' (cases)+ '}'                                                                  # switch
      ;
 
 operators: mult | summ;
@@ -25,9 +23,11 @@ number: NUMBER;
 
 variable: ID;
 
-function_def : 'func' name=ID '(' args? ')' block;
+function_def : 'func' name=ID '(' args? ')' ':' precision block;
 
-args : ID (',' ID)*;
+args : ID ':' precision (',' ID ':' precision)*;
+
+precision : 'int' | 'float';
 
 cases: 'case' expr ':' expr 'break;'?;
 
@@ -37,7 +37,11 @@ call : name=ID '(' exprs? ')' ';';
 
 exprs : expr (',' expr)*;
 
-forexpr : '(' variable '=' expr ';' cond=expr ';' variable '=' expr ')';
+forexpr : '(' init';' cond=expr ';' finish ')' block;
+
+init: variable '=' expr;
+
+finish: variable '=' expr;
 
 exp: left=summ (op=('>' | '<' | '>=' | '<=' | '==' | '!=') right=exp)*;
 
@@ -46,8 +50,8 @@ summ: left=mult (op=('+'|'-') right=summ)*;
 mult: left=atom (op=('*' | '/' | '%') right=mult)*;
 
 atom
-   : '(' '-'?exp ')'
-   | '-'?number
+   : '(' LESS?exp ')'
+   | LESS?number
    | BOOL
    | STRING
    | ID
@@ -58,6 +62,8 @@ fragment ID_START : [a-zA-Z]+;
 fragment ID_BODY : ID_START | NUMBER;
 
 ID : ID_START ID_BODY*;
+
+LESS : '-';
 
 // Comentário
 COMMENT: '/*' .*? '*/' -> skip;

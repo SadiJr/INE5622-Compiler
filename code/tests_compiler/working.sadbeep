@@ -1,0 +1,85 @@
+func teste(num: int): int {
+    print(num);
+    return 0;
+}
+
+func intTest(numPrim: int): int {
+    print(numPrim);
+
+    for (numPrim = 1; numPrim < 10; numPrim = numPrim + 1) {
+        print(numPrim);
+    }
+
+    b = 10;
+    while b {
+        b = b - 1;
+        numPrim = numPrim + 1;
+    }
+    print(numPrim);
+
+    if numPrim == 21 {
+        numPrim = numPrim * 2;
+    } else {
+        numPrim = numPrim / 2;
+    }
+    print(numPrim);
+
+    test = 10;
+
+    switch test {
+        case 10:
+            print(10);
+        case 12:
+            print(12);
+        case 11:
+            print(11);
+            break;
+    }
+    return 0;
+}
+
+func floatTest(numSec: float): float {
+    print(numSec);
+
+    for (numSec = 0.1; numSec < 1.6; numSec = numSec + 0.1) {
+        print(numSec);
+    }
+
+    c = 10.9;
+    while c > 10.0 {
+        c = c - 0.1;
+        numSec = numSec + 0.1;
+    }
+    print(numSec);
+
+    if numSec >= 2.6 {
+        numSec = numSec * 2.1;
+    } else {
+        numSec = numSec / 1.1;
+    }
+
+    print(numSec);
+
+    temp = 10.1;
+
+    switch temp {
+        case 10.0:
+            print(10);
+        case 10.2:
+            print(10.2);
+        case 10.1:
+            print(10.1);
+            break;
+    }
+
+    return numSec;
+}
+
+func main(): int {
+    a = 11;
+    teste(a);
+
+    floatTest(3.1);
+    intTest(a);
+    return 0;
+}

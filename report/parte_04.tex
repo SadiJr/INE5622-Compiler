@@ -1,0 +1,61 @@
+\section{\normalsize MUDANÇAS NA LINGUAGEM ORIGINAL}
+	As seguintes mudanças ocorreram na linguagem original:
+	\begin{itemize}
+		\item Regra \textit{expr}:
+			\begin{itemize}
+				\item Foram adicionados \textit{labels} em todas as cláusulas;
+				\item Foi adicionada uma nova cláusula (\textit{\textquotesingle print\textquotesingle expr \textquotesingle ;\textquotesingle});
+				\item Foi removida a cláusula ID, dessa forma, a declaração de uma variável sem valor definido deixa de ser possível.
+				\item Foi removida a cláusula \textit{expr operators \textquotesingle ;\textquotesingle}, uma vez que uma análise mais detalhada mostrou que tal cláusula era redundante.
+				\item O símbolo \textquotesingle -\textquotesingle foi renomeado para LESS.
+				\item As estruturas \textit{if} e \textit{while} foram refatoradas, uma vez que o símbolo \textbf{|} se encontrava fora dos parênteses, o que, para o ANTLR4, criava uma nova cláusula. \footnote{Exemplificando: \\antes o \textit{if} era assim:\\\textquotesingle if\textquotesingle \vspace{0.1cm} cond=expr (\textquotesingle \&\&\textquotesingle  \vspace{0.1cm} cond=expr)* | (\textquotesingle ||\textquotesingle  \vspace{0.1cm} cond=expr)$*$ then=block (\textquotesingle else\textquotesingle  \vspace{0.1cm} otherwise=block)?\\e agora ficou assim:\\ \textquotesingle if\textquotesingle \vspace{0.1cm} cond=expr (\textquotesingle \&\&\textquotesingle \vspace{0.1cm} cond=expr $|$ \textquotesingle $||$\textquotesingle \vspace{0.1cm} cond=expr)$*$ then=block (\textquotesingle else\textquotesingle \vspace{0.1cm} otherwise=block)?}
+			\end{itemize}
+		
+		\item Regra \textit{for}:
+			\begin{itemize}
+				\item Basicamente a regra \textit{for} foi dividida em duas novas regras, a saber: \textit{init} e \textit{finish}.
+				
+				\item Para exemplificar, a antiga regra era assim:\\
+				\begin{itemize}
+					\item 
+					
+					\textquotesingle for\textquotesingle \vspace{0.1cm} forexpr block\\
+				forexpr : \textquotesingle(\textquotesingle \vspace{0.1cm} variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr \textquotesingle ;\textquotesingle \vspace{0.1cm} cond=expr \textquotesingle ;\textquotesingle \vspace{0.1cm} variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr \textquotesingle)\textquotesingle ;
+				\end{itemize}
+
+				
+				E agora a mesma é assim:
+				\begin{itemize}
+					\item 
+					
+						\textquotesingle for\textquotesingle \vspace{0.1cm} forexpr\\
+						forexpr : \textquotesingle(\textquotesingle \vspace{0.1cm} init \textquotesingle ;\textquotesingle \vspace{0.1cm} cond=expr \textquotesingle ;\textquotesingle \vspace{0.1cm} finish \textquotesingle)\textquotesingle \vspace{0.1cm} block;\\
+						init: variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr;\\
+						finish: variable \textquotesingle =\textquotesingle \vspace{0.1cm} expr;
+				\end{itemize}
+			\end{itemize}
+		
+		\item Regras \textit{args} e \textit{function\_def}:\\
+			Ambas as regras foram alteradas para poderem suportar tipagem sobre o retorno da função e os parâmetros recebidos.
+			
+			Antes era assim:			
+			\begin{itemize}
+				\item
+				
+				function\_def : \textquotesingle func\textquotesingle \vspace{0.1cm} name=ID \textquotesingle(\textquotesingle \vspace{0.1cm} args? \textquotesingle)\textquotesingle \vspace{0.1cm} block;
+
+				args : ID (\textquotesingle ,\textquotesingle \vspace{0.1cm} ID)*;
+			\end{itemize}
+			
+			E agora a mesma é assim:
+			\begin{itemize}
+				\item 
+				
+				function\_def : \textquotesingle func\textquotesingle \vspace{0.1cm} name=ID \textquotesingle(\textquotesingle \vspace{0.1cm} args? \textquotesingle)\textquotesingle \textquotesingle :\textquotesingle \vspace{0.1cm} precision \vspace{0.1cm} block;
+
+				args : ID \textquotesingle :\textquotesingle \vspace{0.1cm} precision (\textquotesingle ,\textquotesingle \vspace{0.1cm} ID \textquotesingle :\textquotesingle \vspace{0.1cm} precision)*;
+
+				precision : \textquotesingle int\textquotesingle \vspace{0.1cm} | \textquotesingle float\textquotesingle ;
+			\end{itemize}
+	\end{itemize}
+	

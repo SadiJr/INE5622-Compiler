@@ -1,5 +1,5 @@
-import tempfile
 import subprocess
+import tempfile
 
 
 def assemble(asm_input, bin_output, gcc):
@@ -9,4 +9,4 @@ def assemble(asm_input, bin_output, gcc):
     asm.write(asm_input)
     asm.close()
 
-    subprocess.call(['gcc', asm.name, '-o', bin_output])
+    subprocess.call(['gcc' if gcc else 'clang', asm.name, '-o', bin_output])
